@@ -11,7 +11,7 @@ const KIND_BY_EXT: Record<string, FileKind> = {
   js: 'js', mjs: 'js',
   json: 'json',
   md: 'md',
-  txt: 'text', csv: 'text', xml: 'text',
+  txt: 'text', csv: 'text', xml: 'text', yml: 'text', yaml: 'text', toml: 'text', svgz: 'other',
   png: 'image', jpg: 'image', jpeg: 'image', gif: 'image', webp: 'image', avif: 'image', svg: 'image', ico: 'image',
   woff: 'font', woff2: 'font', ttf: 'font', otf: 'font',
   mp3: 'media', ogg: 'media', wav: 'media', mp4: 'media', webm: 'media',
@@ -20,7 +20,7 @@ const KIND_BY_EXT: Record<string, FileKind> = {
 
 export const MIME_BY_EXT: Record<string, string> = {
   html: 'text/html', htm: 'text/html', css: 'text/css', js: 'text/javascript', mjs: 'text/javascript',
-  json: 'application/json', md: 'text/markdown', txt: 'text/plain', csv: 'text/csv', xml: 'application/xml',
+  json: 'application/json', md: 'text/markdown', txt: 'text/plain', yml: 'text/yaml', yaml: 'text/yaml', toml: 'text/plain', csv: 'text/csv', xml: 'application/xml',
   png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif',
   svg: 'image/svg+xml', ico: 'image/x-icon',
   woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf',
@@ -40,7 +40,11 @@ export function extOf(path: string): string {
   return i > 0 ? name.slice(i + 1).toLowerCase() : ''
 }
 
+/** File teks tanpa ekstensi yang umum di proyek. */
+const TEXT_NAMES = new Set(['.gitignore', '.gitkeep', '.nvmrc', '.env.example', '.editorconfig', '.prettierrc', '.nojekyll', 'LICENSE', 'CNAME'])
+
 export function kindOf(path: string): FileKind | null {
+  if (TEXT_NAMES.has(basename(path))) return 'text'
   return KIND_BY_EXT[extOf(path)] ?? null
 }
 
@@ -128,9 +132,20 @@ export function isFriendlyName(name: string) {
   return friendlyName(name) === name
 }
 
-/** File/folder yang sebaiknya tidak diimpor. */
+/** File/folder dot yang berguna dan aman untuk proyek web. */
+const ALLOWED_DOT = new Set(['.github', '.gitignore', '.gitkeep', '.nvmrc', '.env.example', '.editorconfig', '.prettierrc', '.nojekyll'])
+
+/**
+ * File/folder yang sebaiknya tidak diimpor/disinkronkan: riwayat Git (.git), dependensi
+ * (node_modules), file sistem, dan file .env yang biasanya berisi rahasia.
+ */
+export function isIgnoredSegment(seg: string): boolean {
+  if (seg === 'node_modules' || seg === '__MACOSX' || seg === 'Thumbs.db' || seg === 'desktop.ini') return true
+  return seg.startsWith('.') && !ALLOWED_DOT.has(seg)
+}
+
 export function isIgnoredPath(path: string): boolean {
-  return path.split('/').some((seg) => seg.startsWith('.') || seg === 'node_modules' || seg === '__MACOSX' || seg === 'Thumbs.db' || seg === 'desktop.ini')
+  return path.split('/').some(isIgnoredSegment)
 }
 
 export function formatBytes(n: number): string {

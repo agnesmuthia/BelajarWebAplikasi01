@@ -1,3 +1,4 @@
+import { deployLessons } from './curriculumDeploy'
 import { githubLessons } from './curriculumGithub'
 import { domLessons, jsLessons } from './curriculumJs'
 import type { SkillId } from './skills'
@@ -776,7 +777,7 @@ export const MODULES: Module[] = [
   upcoming('api', 'API Integration', 'fetch, JSON, async/await, dan menangani error jaringan.', 5, ['javascript']),
   upcoming('backend', 'Backend Fundamentals', 'Server, HTTP, routing, dan validasi data di server.', 7, []),
   upcoming('database', 'Database and Authentication', 'SQL dasar, Supabase, autentikasi, dan Row Level Security.', 7, []),
-  upcoming('deploy', 'Deployment and Domains', 'GitHub Pages, Netlify, Vercel, DNS, dan HTTPS.', 6, ['deployment']),
+  { id: 'deploy', title: 'Deployment and Domains', description: 'Build, GitHub Pages, Netlify, Vercel, build log, DNS, HTTPS, monitoring, dan biaya.', phase: 6, skills: ['deployment'], lessons: deployLessons },
   upcoming('quality', 'Testing, Accessibility, and Security', 'Unit test, audit aksesibilitas, dan dasar keamanan web.', 8, ['accessibility']),
   upcoming('advanced', 'Advanced Full-Stack Development', 'Arsitektur aplikasi, performa, dan praktik profesional.', 8, []),
 ]

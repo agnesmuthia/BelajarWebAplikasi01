@@ -9,7 +9,7 @@
  */
 import { sha256 } from './hash'
 import type { ImportSource } from './importer'
-import { MAX_FILE_BYTES, isTextKind, kindOf, mimeOf, normalizePath } from './paths'
+import { MAX_FILE_BYTES, isIgnoredSegment, isTextKind, kindOf, mimeOf, normalizePath } from './paths'
 
 /* Antarmuka minimal (juga dipakai implementasi palsu di test). */
 export interface FileLike {
@@ -57,8 +57,7 @@ export async function ensurePermission(dir: DirLike): Promise<boolean> {
   return (await dir.requestPermission({ mode: 'readwrite' })) === 'granted'
 }
 
-const SKIP_DIRS = new Set(['node_modules', '__MACOSX'])
-const skipName = (n: string) => n.startsWith('.') || SKIP_DIRS.has(n)
+const skipName = isIgnoredSegment
 
 export interface ScanResult {
   sources: ImportSource[]

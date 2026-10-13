@@ -97,6 +97,9 @@ export function computeSkills(state: AppState): SkillEvidence[] {
     for (const sid of c.skills) byId.get(sid)?.challenges.push(c.title)
   }
 
+  // Proyek yang sudah online (URL deployment tersimpan) = bukti praktik deployment.
+  for (const p of state.projects) if (/^https:\/\//.test(p.deployUrl)) byId.get('deployment')?.tasks.push({ project: p.name, task: 'Website online' })
+
   // Misi simulator Git = bukti praktik untuk skill Git.
   for (const m of MISSIONS) if (state.missions[m.id]) byId.get('git')?.challenges.push(`Misi: ${m.title}`)
 

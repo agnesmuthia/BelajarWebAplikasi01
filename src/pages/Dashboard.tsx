@@ -106,6 +106,7 @@ export default function Dashboard() {
   const recent = [...state.activity].reverse().slice(0, 6)
   const nextLab = nextChallenge(state)
   const nextGit = nextMission(state)
+  const nextDeploy = MODULES.find((m) => m.id === 'deploy')?.lessons.find((l) => !state.lessons[l.id]?.passedAt)
   const labDone = CHALLENGES.filter((c) => state.challenges[c.id]?.passedAt).length
 
   return (
@@ -132,7 +133,11 @@ export default function Dashboard() {
               </>
             )}
             <div className="mt-5 flex flex-wrap gap-2">
-              {state.settings.mode === 'github' && nextGit ? (
+              {state.settings.mode === 'deploy' && nextDeploy ? (
+                <Link to={`/learn/deploy/${nextDeploy.id}`} className="btn-primary">
+                  Lanjut deployment: {nextDeploy.title} <ArrowRight className="size-4" />
+                </Link>
+              ) : state.settings.mode === 'github' && nextGit ? (
                 <Link to={`/github/m/${nextGit.id}`} className="btn-primary">
                   Lanjut misi Git: {nextGit.title} <ArrowRight className="size-4" />
                 </Link>

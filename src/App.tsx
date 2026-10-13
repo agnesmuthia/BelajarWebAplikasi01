@@ -5,6 +5,7 @@ import { StoreProvider } from './lib/store'
 import { ToastProvider } from './lib/toast'
 import Dashboard from './pages/Dashboard'
 import GitHubCenter from './pages/github/GitHubCenter'
+import DeployHub from './pages/DeployHub'
 import Integrations from './pages/Integrations'
 import LocalWorkflow from './pages/LocalWorkflow'
 import LabHome from './pages/lab/LabHome'
@@ -46,6 +47,7 @@ export function AppRoutes() {
         <Route path="github/m/:missionId" element={<Suspense fallback={loading}><MissionPage /></Suspense>} />
         <Route path="integrations" element={<Integrations />} />
         <Route path="local" element={<LocalWorkflow />} />
+        <Route path="deploy" element={<DeployHub />} />
         <Route path="skills" element={<Skills />} />
         <Route path="roadmap" element={<Roadmap />} />
         <Route path="settings" element={<Settings />} />

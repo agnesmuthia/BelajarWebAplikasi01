@@ -23,6 +23,7 @@ import { CodeBlock } from '../components/CodeBlock'
 import { Badge, ProgressBar, ProgressRing, SectionTitle, cx } from '../components/ui'
 import { parseRepoUrl } from '../github/api'
 import { RepoDetail } from '../github/RepoDetail'
+import { ConfigFileButtons, DeployReadiness } from '../deploy/DeployReadiness'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
 import { skillById } from '../data/skills'
 import { relativeTime } from '../lib/date'
@@ -196,8 +197,16 @@ function PublishTab({ project }: { project: UserProject }) {
           {deployHref ? (
             <a href={deployHref} target="_blank" rel="noopener noreferrer" className="btn-secondary"><ExternalLink className="size-4" /> Buka website</a>
           ) : (
-            <p className="muted text-sm">Belum ada URL. Langkah menerbitkan ke GitHub Pages ada di README DevStudio; tutorial lengkap di Deployment Academy (Phase 6).</p>
+            <p className="muted text-sm">Belum ada URL. Ikuti <Link to="/learn/deploy/deploy-2" className="underline">pelajaran GitHub Pages</Link> atau <Link to="/deploy" className="underline">Deployment Academy</Link>.</p>
           )}
+        </div>
+        <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+          <h3 className="mb-3 text-sm font-semibold">Siap deploy?</h3>
+          <DeployReadiness projectId={project.id} templateId={project.templateId} compact />
+        </div>
+        <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+          <h3 className="mb-2 text-sm font-semibold">File konfigurasi deployment</h3>
+          <ConfigFileButtons projectId={project.id} />
         </div>
         <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
           <h3 className="mb-2 text-sm font-semibold">Perintah untuk push proyek ini</h3>
@@ -233,7 +242,7 @@ export default function ProjectWorkspace() {
   const { state, updateProject, deleteProject } = useStore()
   const toast = useToast()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<TabId>('tasks')
+  const [tab, setTab] = useState<TabId>(state.settings.mode === 'deploy' ? 'publish' : 'tasks')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [editing, setEditing] = useState(false)
   const [nameDraft, setNameDraft] = useState('')

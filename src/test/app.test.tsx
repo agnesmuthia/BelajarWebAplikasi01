@@ -25,7 +25,7 @@ describe('app', () => {
   it('renders the dashboard with real (empty) data', () => {
     renderAt('/')
     expect(screen.getByText('Selamat datang di DevStudio')).toBeInTheDocument()
-    expect(screen.getByText('0 dari 20 checkpoint lulus')).toBeInTheDocument()
+    expect(screen.getByText('0 dari 26 checkpoint lulus')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Continue Learning/ })).toHaveAttribute('href', '/learn/html/html-1')
   })
 

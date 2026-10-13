@@ -3,10 +3,36 @@
 Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, **Phase 4 — Git & GitHub**, dan **Phase 5 — Local Workflow**. Fitur fase
+> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, **Phase 4 — Git & GitHub**, **Phase 5 — Local Workflow**, dan **Phase 6 — Deployment**. Fitur fase
 > berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
 
 ---
+
+## Phase 6 — Deployment
+
+| Fitur | Keterangan |
+|---|---|
+| **Deployment Academy** (modul “Deploy”, 6 pelajaran + kuis) | Localhost & build → GitHub Pages → Netlify & Vercel → membaca build log → domain, DNS & HTTPS (termasuk `.sch.id` lewat PANDI dengan dokumen sekolah) → monitoring, backup, biaya & migrasi gratis → berbayar. |
+| **Deploy hub** (`/#/deploy`) | 5 level (Level 4 full-stack dikunci sampai Phase 7), kartu platform dengan **tanggal pengecekan**, pemilih platform (jenis situs, komersial?, repo privat?, butuh preview?), analisis build log, pembuat record DNS, dan daftar situs yang sudah online. |
+| **Siap deploy?** | Di tab Publikasi proyek: cek `index.html`, rahasia/API key/`.env`, huruf besar-kecil path, file hilang, path absolut `/`, sumber `http://`, nama file dengan spasi/huruf besar, gambar > 1 MB, dan teks placeholder. |
+| **File konfigurasi** | Tombol menambahkan `.github/workflows/deploy-pages.yml` (GitHub Actions → Pages) atau `netlify.toml` ke proyek, dengan pratinjau dan checkpoint otomatis bila menimpa. DevStudio **tidak** melakukan push atau deploy — kamu yang commit & push. |
+| **Analisis build log** | Tempel log; DevStudio menandai baris error pertama dan mengenali 13 pola umum (lockfile, versi Node, modul hilang, error TypeScript, folder publish salah, env var, kehabisan memori, izin Pages, ERESOLVE, 404 SPA, dll.). |
+
+**Tentang data biaya & batas.** Angka platform dicek **13 Oktober 2026** dan ditampilkan dengan label
+“bisa berubah” serta tautan ke halaman resmi. Batas GitHub Pages berasal dari dokumentasi resmi GitHub.
+Angka Netlify (sistem kredit) dan Vercel (Hobby hanya non-komersial) berasal dari ringkasan pihak ketiga
+karena halaman resminya tidak bisa diakses dari lingkungan pengembangan — **verifikasi di halaman harga
+resmi sebelum memilih**. Tidak ada janji bahwa semua fitur selalu gratis; risiko vendor lock-in dijelaskan.
+
+**CI & deploy DevStudio sendiri.**
+- `.github/workflows/ci.yml` — menjalankan `npm ci`, test, dan build pada push/PR (hanya izin baca).
+- `.github/workflows/deploy-pages.yml` — **manual saja** (`workflow_dispatch`). Untuk mengaktifkan:
+  GitHub → **Settings → Pages → Source: GitHub Actions**, lalu **Actions → Deploy DevStudio to GitHub Pages → Run workflow**.
+  Aplikasi memakai `base: './'` dan HashRouter, jadi berjalan di subpath `https://<user>.github.io/<repo>/`.
+
+**Cara menguji Phase 6:** buka **Deploy** di menu → coba pemilih platform → tempel contoh log → isi domain
+di pembuat DNS. Buka sebuah proyek → tab **Publikasi** → lihat “Siap deploy?”, tambahkan `netlify.toml`,
+lalu cek file itu muncul di editor proyek. Jalankan `npm test` (79 test) dan `npm run build`.
 
 ## Phase 5 — Local Workflow
 
@@ -18,7 +44,7 @@ Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy
 | **Claude Code** | Apa itu, cara memulai di folder proyek, biaya (butuh akun berbayar/API), kebiasaan aman (commit dulu, baca diff, jangan tempel rahasia), contoh permintaan yang menjaga proses belajar, dan contoh `CLAUDE.md`. |
 
 **Keamanan folder lokal:** hanya folder yang dipilih pengguna; `node_modules` dan folder tersembunyi (`.git`)
-dilewati; path divalidasi (tanpa `..`); DevStudio **tidak pernah menghapus** file di komputer. Browser lain
+dilewati (kecuali file konfigurasi umum seperti `.gitignore`, `.github/`, `.nojekyll`); path divalidasi (tanpa `..`); DevStudio **tidak pernah menghapus** file di komputer. Browser lain
 (Firefox, Safari, ponsel) tetap bisa memakai Impor folder/ZIP dan unduhan ZIP.
 
 ## Phase 4 — Git & GitHub

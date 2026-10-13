@@ -29,7 +29,7 @@ export const MODE_INFO: Record<LearningMode, ModeInfo> = {
   build: { label: 'Build Mode', description: 'Membangun dan bereksperimen bebas.', icon: Hammer, phase: 2, effect: 'Coding Lab menampilkan Playground bebas di bagian atas.' },
   debug: { label: 'Debug Mode', description: 'Mencari dan memperbaiki bug.', icon: Bug, phase: 2, effect: 'Coding Lab langsung menampilkan tantangan debugging.' },
   github: { label: 'GitHub Mode', description: 'Berlatih workflow Git dan GitHub.', icon: GitBranch, phase: 4, effect: 'Continue Learning membuka misi Git berikutnya, dan petunjuk perintah di simulator langsung terlihat.' },
-  deploy: { label: 'Deployment Mode', description: 'Menerbitkan proyek ke internet.', icon: Rocket, phase: 6, effect: 'Membutuhkan Deployment Academy (Phase 6).' },
+  deploy: { label: 'Deployment Mode', description: 'Menerbitkan proyek ke internet.', icon: Rocket, phase: 6, effect: 'Continue Learning membuka pelajaran deployment berikutnya, dan proyek langsung terbuka di tab Repo & Deploy.' },
 }
 
-export const CURRENT_PHASE = 5
+export const CURRENT_PHASE = 6

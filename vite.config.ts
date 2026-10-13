@@ -7,8 +7,9 @@ import tailwindcss from '@tailwindcss/vite'
 // (misalnya GitHub Pages: https://username.github.io/nama-repo/).
 export default defineConfig({
   base: './',
-  // Chunk editor (CodeMirror) ±600 KB, dimuat terpisah hanya di halaman editor.
-  build: { chunkSizeWarningLimit: 700 },
+  // Chunk utama ±725 KB (±225 KB gzip) karena memuat seluruh kurikulum untuk menghitung progres;
+  // editor CodeMirror & Prettier dimuat terpisah hanya saat dibutuhkan.
+  build: { chunkSizeWarningLimit: 800 },
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'jsdom',
