@@ -4,6 +4,7 @@ import { html } from '@codemirror/lang-html'
 import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
 import { markdown } from '@codemirror/lang-markdown'
+import { SQLite, sql } from '@codemirror/lang-sql'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { EditorState, Prec, type Extension } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
@@ -30,7 +31,7 @@ const theme = EditorView.theme({
   '&.cm-focused': { outline: 'none' },
 })
 
-export type EditorLang = 'html' | 'css' | 'js' | 'json' | 'md' | 'text'
+export type EditorLang = 'html' | 'css' | 'js' | 'json' | 'md' | 'sql' | 'text'
 
 const langExt: Record<EditorLang, () => Extension> = {
   html: () => html({ autoCloseTags: true }),
@@ -38,6 +39,7 @@ const langExt: Record<EditorLang, () => Extension> = {
   js: () => javascript(),
   json: () => json(),
   md: () => markdown(),
+  sql: () => sql({ dialect: SQLite }),
   text: () => [],
 }
 

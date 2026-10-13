@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, CheckCircle2, Circle, Clock, Download, FolderPlus, ListChecks, ShieldAlert, Target } from 'lucide-react'
+import { ArrowLeft, BookOpen, Lock, CheckCircle2, Circle, Clock, Download, FolderPlus, ListChecks, ShieldAlert, Target } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FileExplorer } from '../components/FileExplorer'
@@ -9,7 +9,7 @@ import { findLesson, ALL_LESSONS } from '../data/curriculum'
 import { findTemplate } from '../data/projects'
 import { skillById } from '../data/skills'
 import { downloadProjectZip } from '../lib/download'
-import { isLessonPassed } from '../lib/progress'
+import { isLessonPassed, missingRequirements } from '../lib/progress'
 import { useStore } from '../lib/store'
 import { useToast } from '../lib/toast'
 import NotFound from './NotFound'
@@ -27,9 +27,11 @@ export default function TemplateDetail() {
   const existing = state.projects.filter((p) => p.templateId === tpl.id)
   const recommended = tpl.recommendedLessons.map((id) => findLesson(id)).filter((l): l is (typeof ALL_LESSONS)[number] => Boolean(l))
   const ready = recommended.every((l) => isLessonPassed(state, l.id))
+  const missing = missingRequirements(state, tpl).map((id) => findLesson(id)).filter((l): l is (typeof ALL_LESSONS)[number] => Boolean(l))
 
   const start = (e: FormEvent) => {
     e.preventDefault()
+    if (missing.length) return
     const id = createProject(tpl.id, name || tpl.title)
     toast('Proyek dibuat. Selamat membangun!')
     navigate(`/projects/${id}`)
@@ -51,9 +53,15 @@ export default function TemplateDetail() {
             {tpl.technologies.map((t) => <span key={t} className="chip bg-white/20">{t}</span>)}
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
-            <button className="btn bg-white text-slate-900 hover:bg-white/90" onClick={() => { setName(tpl.title); setOpen(true) }}>
-              <FolderPlus className="size-4" /> Mulai proyek ini
-            </button>
+            {missing.length ? (
+              <Link to={`/learn/${missing[0].moduleId}/${missing[0].id}`} className="btn bg-white/90 text-slate-900 hover:bg-white">
+                <Lock className="size-4" /> Terkunci — lulus “{missing.map((l) => l.title).join('”, “')}” dulu
+              </Link>
+            ) : (
+              <button className="btn bg-white text-slate-900 hover:bg-white/90" onClick={() => { setName(tpl.title); setOpen(true) }}>
+                <FolderPlus className="size-4" /> Mulai proyek ini
+              </button>
+            )}
             <button className="btn bg-white/15 text-white hover:bg-white/25" onClick={() => downloadProjectZip(tpl.title, tpl.files)}>
               <Download className="size-4" /> Unduh starter (ZIP)
             </button>

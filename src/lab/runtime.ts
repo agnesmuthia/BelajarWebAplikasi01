@@ -80,12 +80,12 @@ const escapeStyle = (s: string) => s.replace(/<\/style/gi, '<\\/style')
  * menyediakan guard loop, dan menjalankan pemeriksa. Ditulis tanpa komentar `//` karena
  * semua baris digabung menjadi SATU baris (agar nomor baris kode pengguna tidak bergeser).
  */
-function runtimeScript(token: string, capture: boolean): string {
+function runtimeScript(token: string, capture: boolean, api = false): string {
   const src = `
 (function(){
-var T=${JSON.stringify(token)};var CAP=${capture ? 'true' : 'false'};
+var T=${JSON.stringify(token)};var CAP=${capture ? 'true' : 'false'};var API=${api ? 'true' : 'false'};
 var logs=[];var errs=[];var sent=0;
-function P(m){if(!CAP)return;if(m.type==='console'||m.type==='error'){sent++;if(sent>500)return;}m.source='devstudio-lab';m.token=T;try{parent.postMessage(m,'*');}catch(e){}}
+function P(m){if(!CAP&&m.type!=='api')return;if(m.type==='console'||m.type==='error'){sent++;if(sent>500)return;}m.source='devstudio-lab';m.token=T;try{parent.postMessage(m,'*');}catch(e){}}
 function fmt(v,d){d=d||0;try{
 if(v===null)return 'null';if(v===undefined)return 'undefined';var t=typeof v;
 if(t==='string')return d?JSON.stringify(v):v;
@@ -115,6 +115,16 @@ var msg=e.message||'Error';errs.push(msg);P({type:'error',text:msg,line:e.lineno
 document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[href]'):null;if(!a||e.defaultPrevented)return;var h=a.getAttribute('href')||'';if(!h||h.charAt(0)==='#'||/^(mailto|tel|javascript):/i.test(h))return;e.preventDefault();if(/^[a-z][a-z0-9+.-]*:|^\\/\\//i.test(h)){out('info',['Link eksternal tidak dibuka di dalam preview: '+h]);return;}P({type:'navigate',href:h});});
 window.addEventListener('submit',function(e){if(!e.defaultPrevented){e.preventDefault();out('warn',['Form dikirim tanpa event.preventDefault(). Di website sungguhan, halaman akan dimuat ulang (Lab mencegahnya).']);}});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;var msg='Promise ditolak: '+(r&&r.message?r.message:fmt(r,0));errs.push(msg);P({type:'error',text:msg,line:0,col:0});});
+var AP={},AN=0,OF=window.fetch;
+function isApi(u){if(typeof u!=='string')return false;if(u.indexOf('./')===0)u=u.slice(1);if(u.charAt(0)!=='/')u='/'+u;return u==='/api'||u.indexOf('/api/')===0||u.indexOf('/api?')===0;}
+window.fetch=function(input,init){init=init||{};var url=typeof input==='string'?input:(input&&input.url)?input.url:String(input);
+if(!API||!isApi(url)){if(!OF)return Promise.reject(new TypeError('fetch tidak tersedia'));return OF.apply(window,arguments).catch(function(e){out('warn',['fetch ke '+url+' diblokir di preview DevStudio. Preview hanya boleh memanggil Mock API di /api/... '+(API?'':'(proyek ini belum punya api/config.json).')]);throw e;});}
+var h={};var hh=init.headers;if(hh){if(typeof Headers!=='undefined'&&hh instanceof Headers){hh.forEach(function(v,k){h[k.toLowerCase()]=v;});}else if(Array.isArray(hh)){hh.forEach(function(p){h[String(p[0]).toLowerCase()]=String(p[1]);});}else{Object.keys(hh).forEach(function(k){h[k.toLowerCase()]=String(hh[k]);});}}
+var b=init.body;if(b!==undefined&&b!==null&&typeof b!=='string'){out('warn',['Body fetch bukan string. Gunakan JSON.stringify(data) sebelum dikirim.']);b=String(b);}
+return new Promise(function(res,rej){var id=++AN;AP[id]={res:res,rej:rej};P({type:'api',id:id,method:String(init.method||'GET').toUpperCase(),url:url,headers:h,body:b===undefined?null:b});});};
+window.addEventListener('message',function(e){if(e.source!==parent)return;var d=e.data;if(!d||d.source!=='devstudio-host'||d.token!==T||d.type!=='api-response')return;var p=AP[d.id];if(!p)return;delete AP[d.id];
+if(d.offline){p.rej(new TypeError('Failed to fetch'));return;}
+p.res(new Response(d.status===204?null:d.body,{status:d.status,statusText:d.statusText||'',headers:{'Content-Type':'application/json'}}));});
 var CHECKS=[];window.__dsSetChecks=function(c){CHECKS=c;};
 var H={
 $:function(s){return document.querySelector(s);},
@@ -169,6 +179,8 @@ export interface BuildInput {
   token?: string
   checks?: CheckDef[]
   capture?: boolean
+  /** Aktifkan Mock API: fetch('/api/...') diteruskan ke DevStudio lewat postMessage. */
+  api?: boolean
 }
 
 export interface BuildResult {
@@ -258,7 +270,7 @@ export function buildDocument(input: BuildInput): BuildResult {
     return open + escapeScript(protectLoops(body, { file: entry, lineOffset })) + close
   })
 
-  const head = `<meta http-equiv="Content-Security-Policy" content="${LAB_CSP}"><script>${runtimeScript(input.token ?? '', input.capture ?? true)}</script>`
+  const head = `<meta http-equiv="Content-Security-Policy" content="${LAB_CSP}"><script>${runtimeScript(input.token ?? '', input.capture ?? true, input.api ?? false)}</script>`
 
   // 2. Kumpulkan posisi yang perlu diganti / disisipi.
   type Edit = { at: number; len: number; kind: 'head' } | { at: number; len: number; kind: 'css' | 'js'; path: string }
@@ -338,7 +350,7 @@ export function labKeyFromPath(path: string): LabFileKey | null {
   return PATH_TO_KEY[path] ?? null
 }
 
-export function buildLabDocument(files: LabFiles, opts: { token?: string; checks?: CheckDef[]; capture?: boolean } = {}): BuiltDocument {
+export function buildLabDocument(files: LabFiles, opts: { token?: string; checks?: CheckDef[]; capture?: boolean; api?: boolean } = {}): BuiltDocument {
   const texts = new Map([
     ['index.html', files.html],
     ['style.css', files.css],

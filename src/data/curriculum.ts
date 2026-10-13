@@ -1,4 +1,5 @@
 import { deployLessons } from './curriculumDeploy'
+import { apiLessons, backendLessons, databaseLessons } from './curriculumFullstack'
 import { githubLessons } from './curriculumGithub'
 import { domLessons, jsLessons } from './curriculumJs'
 import type { SkillId } from './skills'
@@ -18,7 +19,7 @@ export interface QuizQuestion {
 }
 
 export interface CodeExample {
-  language: 'html' | 'css' | 'bash' | 'js' | 'yaml' | 'md' | 'text'
+  language: 'html' | 'css' | 'bash' | 'js' | 'yaml' | 'md' | 'sql' | 'json' | 'text'
   code: string
   caption: string
   /** Jika ada, contoh dirender di iframe terisolasi agar hasilnya terlihat. */
@@ -42,6 +43,8 @@ export interface Lesson {
   gitCheckpoint?: string
   /** Tantangan Coding Lab yang terkait. */
   lab?: string
+  /** Tautan latihan lain (mis. SQL Lab) jika bukan tantangan Coding Lab. */
+  practice?: { to: string; label: string }
 }
 
 export interface Module {
@@ -774,9 +777,9 @@ export const MODULES: Module[] = [
   { id: 'dom', title: 'DOM Manipulation', description: 'Memilih elemen, event listener, dan mengubah halaman secara dinamis.', phase: 2, skills: ['dom'], lessons: domLessons },
   { id: 'git', title: 'Git and GitHub', description: 'Dari commit pertama sampai Pull Request, GitHub Actions, dan keamanan secrets.', phase: 1, skills: ['git', 'github'], lessons: [...gitLessons, ...githubLessons] },
   upcoming('react', 'React and Vite', 'Komponen, props, state, dan tooling modern.', 3, ['javascript']),
-  upcoming('api', 'API Integration', 'fetch, JSON, async/await, dan menangani error jaringan.', 5, ['javascript']),
-  upcoming('backend', 'Backend Fundamentals', 'Server, HTTP, routing, dan validasi data di server.', 7, []),
-  upcoming('database', 'Database and Authentication', 'SQL dasar, Supabase, autentikasi, dan Row Level Security.', 7, []),
+  { id: 'api', title: 'API Integration', description: 'HTTP, JSON, status code, fetch, async/await, dan menangani loading & error.', phase: 7, skills: ['api'], lessons: apiLessons },
+  { id: 'backend', title: 'Backend Fundamentals', description: 'Routing REST, serverless function, validasi di server, dan keamanan API.', phase: 7, skills: ['backend'], lessons: backendLessons },
+  { id: 'database', title: 'Database and Authentication', description: 'SQL dengan SQLite di browser, relasi & JOIN, login yang aman, Supabase, dan Row Level Security.', phase: 7, skills: ['database', 'auth'], lessons: databaseLessons },
   { id: 'deploy', title: 'Deployment and Domains', description: 'Build, GitHub Pages, Netlify, Vercel, build log, DNS, HTTPS, monitoring, dan biaya.', phase: 6, skills: ['deployment'], lessons: deployLessons },
   upcoming('quality', 'Testing, Accessibility, and Security', 'Unit test, audit aksesibilitas, dan dasar keamanan web.', 8, ['accessibility']),
   upcoming('advanced', 'Advanced Full-Stack Development', 'Arsitektur aplikasi, performa, dan praktik profesional.', 8, []),

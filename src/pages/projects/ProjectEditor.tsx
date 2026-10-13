@@ -20,6 +20,7 @@ import {
   X,
   FileArchive,
   HardDrive,
+  Server,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type FormEvent } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
@@ -44,6 +45,9 @@ import { LocalFolderPanel } from '../../workspace/LocalFolderPanel'
 import { fromDataTransfer, fromFiles, fromZip, isZip, readForStore, type ImportSource, type PlanRow } from '../../workspace/importer'
 import { basename, dirname, formatBytes, isTextKind, kindOf, normalizePath, type FileKind } from '../../workspace/paths'
 import { assetDataUrls, useProjectFiles } from '../../workspace/useProjectFiles'
+import { ApiPanel } from '../../fullstack/ApiPanel'
+import { CONFIG_PATH } from '../../fullstack/mockApi'
+import { useMockApi } from '../../fullstack/useMockApi'
 import NotFound from '../NotFound'
 
 type Level = 'log' | 'info' | 'warn' | 'error' | 'system'
@@ -54,7 +58,7 @@ interface Entry {
   loc?: DocLocation | null
   hint?: ErrorHint | null
 }
-type RightTab = 'preview' | 'console' | 'audit' | 'checkpoint' | 'local'
+type RightTab = 'preview' | 'console' | 'api' | 'audit' | 'checkpoint' | 'local'
 type Pane = 'files' | 'code' | 'output'
 
 const LANG: Partial<Record<FileKind, EditorLang>> = { html: 'html', css: 'css', js: 'js', json: 'json', md: 'md', text: 'text' }
@@ -142,6 +146,8 @@ function Editor({ projectId }: { projectId: string }) {
     for (const f of files ?? []) if (f.text !== undefined) m.set(f.path, buffers[f.path] ?? f.text)
     return m
   }, [files, buffers])
+  const apiConfigText = texts.get(CONFIG_PATH) ?? null
+  const api = useMockApi({ scope: `project:${projectId}`, configText: apiConfigText, iframe, token })
   const dirty = useMemo(() => new Set(Object.entries(buffers).filter(([p, t]) => byPath.get(p)?.text !== t).map(([p]) => p)), [buffers, byPath])
   const currentSnapshot = useMemo(() => (files ?? []).map((f) => ({ path: f.path, text: f.text !== undefined ? (buffers[f.path] ?? f.text) : undefined, blobHash: f.blobHash, mime: f.mime, size: f.size })), [files, buffers])
   const totalBytes = useMemo(() => (files ?? []).reduce((a, f) => a + f.size, 0), [files])
@@ -201,7 +207,7 @@ function Editor({ projectId }: { projectId: string }) {
       setRunning(true)
       const { map, skipped } = await assetDataUrls(files)
       token.current = newToken()
-      const r = buildDocument({ entry, texts, assets: map, token: token.current })
+      const r = buildDocument({ entry, texts, assets: map, token: token.current, api: texts.has(CONFIG_PATH) })
       mapLine.current = r.mapLine
       const sys: Entry[] = r.missing.map((m) => ({ id: ++entryId.current, level: 'warn', text: `${m.from} merujuk “${m.ref}”, tetapi file itu tidak ada di proyek. Periksa ejaan & folder (path relatif).` }))
       if (skipped.length) sys.push({ id: ++entryId.current, level: 'system', text: `${skipped.length} aset besar tidak dimuat di preview (batas 25 MB): ${skipped.slice(0, 3).join(', ')}` })
@@ -538,6 +544,7 @@ function Editor({ projectId }: { projectId: string }) {
             {([
               ['preview', 'Preview', Eye],
               ['console', 'Console', Terminal],
+              ['api', 'API', Server],
               ['audit', 'Pemeriksaan', ListChecks],
               ['checkpoint', 'Checkpoint', GitCommitHorizontal],
               ['local', 'Folder lokal', HardDrive],
@@ -584,6 +591,12 @@ function Editor({ projectId }: { projectId: string }) {
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+
+            {right === 'api' && (
+              <div className="absolute inset-0 overflow-hidden bg-white dark:bg-ink-900">
+                <ApiPanel api={api} />
               </div>
             )}
 

@@ -9,8 +9,8 @@ const PHASES = [
   { n: 4, title: 'Git & GitHub', items: ['Simulator terminal Git dengan 8 misi terperiksa otomatis', 'GitHub Learning Center level 1–4', 'Integrations: data GitHub publik (profil, repo, branch, commit, Actions) tanpa token', 'Rencana & panduan GitHub App izin minimum (akses tulis aktif setelah backend tersedia)'] },
   { n: 5, title: 'Local Workflow', items: ['Pemeriksa kesiapan komputer (Git, Node.js, npm, VS Code)', 'Panduan VS Code, terminal, dan development server', 'Folder lokal ↔ proyek DevStudio lewat File System Access API (dengan izin)', 'Folder lokal ↔ GitHub', 'Panduan Claude Code yang aman'] },
   { n: 6, title: 'Deployment', items: ['Deployment Academy: 6 pelajaran (localhost → domain, monitoring, biaya)', 'Perbandingan GitHub Pages, Netlify, Vercel bertanggal & bersumber', 'Pemeriksaan “Siap deploy?” & file konfigurasi otomatis', 'Penganalisis build log & pembuat record DNS', 'CI dan workflow deploy manual untuk DevStudio sendiri'] },
-  { n: 7, title: 'Full-Stack', items: ['Autentikasi & database (mis. Supabase)', 'Row Level Security', 'API & serverless functions', 'AI Coding Mentor melalui backend aman'] },
-  { n: 8, title: 'Polish', items: ['Testing menyeluruh', 'Audit aksesibilitas & keamanan', 'Optimasi performa', 'Dokumentasi'] },
+  { n: 7, title: 'Full-Stack', items: ['Modul API, Backend, dan Database & Autentikasi (8 pelajaran)', 'Mock API di preview: REST, validasi, login dengan hash password, aturan akses per baris', 'SQL Lab: SQLite sungguhan di browser dengan 10 tantangan terperiksa', 'Proyek CRUD & Login, terbuka setelah checkpoint', 'Sinkronisasi cadangan opsional ke Supabase milik pengguna (RLS)'] },
+  { n: 8, title: 'Polish', items: ['Testing menyeluruh', 'Audit aksesibilitas & keamanan', 'Optimasi performa', 'Dokumentasi', 'AI Coding Mentor hanya jika ada backend aman & persetujuan biaya'] },
 ]
 
 export default function Roadmap() {

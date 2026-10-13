@@ -25,7 +25,7 @@ describe('app', () => {
   it('renders the dashboard with real (empty) data', () => {
     renderAt('/')
     expect(screen.getByText('Selamat datang di DevStudio')).toBeInTheDocument()
-    expect(screen.getByText('0 dari 26 checkpoint lulus')).toBeInTheDocument()
+    expect(screen.getByText('0 dari 34 checkpoint lulus')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Continue Learning/ })).toHaveAttribute('href', '/learn/html/html-1')
   })
 
@@ -68,7 +68,7 @@ describe('app', () => {
 describe('coding lab', () => {
   it('lists all challenges and playground templates', () => {
     renderAt('/lab')
-    expect(screen.getByText('0 dari 10 tantangan selesai')).toBeInTheDocument()
+    expect(screen.getByText('0 dari 12 tantangan selesai')).toBeInTheDocument()
     expect(screen.getByText('Tombol yang Tidak Bereaksi')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Debugging' }))
     expect(screen.queryByText('Kartu Profil HTML')).not.toBeInTheDocument()

@@ -1,4 +1,5 @@
 import { CHALLENGES } from '../data/challenges'
+import { SQL_CHALLENGES } from '../data/sqlChallenges'
 import { ALL_LESSONS, MODULES, type Module } from '../data/curriculum'
 import { MISSIONS } from '../data/gitMissions'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
@@ -35,6 +36,11 @@ export function nextLesson(state: AppState) {
     }
   }
   return null
+}
+
+/** Checkpoint wajib yang belum lulus untuk sebuah template (kosong = terbuka). */
+export function missingRequirements(state: AppState, template: ProjectTemplate) {
+  return (template.requires ?? []).filter((id) => !isLessonPassed(state, id))
 }
 
 export function projectProgress(project: UserProject, template: ProjectTemplate | undefined) {
@@ -95,6 +101,12 @@ export function computeSkills(state: AppState): SkillEvidence[] {
     const p = state.challenges[c.id]
     if (!p?.passedAt || p.solutionViewed) continue
     for (const sid of c.skills) byId.get(sid)?.challenges.push(c.title)
+  }
+
+  // Tantangan SQL Lab = bukti praktik database.
+  for (const c of SQL_CHALLENGES) {
+    const p = state.challenges[c.id]
+    if (p?.passedAt && !p.solutionViewed) byId.get('database')?.challenges.push(`SQL: ${c.title}`)
   }
 
   // Proyek yang sudah online (URL deployment tersimpan) = bukti praktik deployment.

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { findChallenge } from '../data/challenges'
+import { findSqlChallenge } from '../data/sqlChallenges'
 import { findLesson } from '../data/curriculum'
 import { findMission } from '../data/gitMissions'
 import { findTemplate } from '../data/projects'
@@ -104,7 +105,7 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
           },
         },
       }
-      return newlyPassed ? withActivity(next, { kind: 'challenge', label: `Lulus tantangan: ${findChallenge(id)?.title ?? id}` }) : next
+      return newlyPassed ? withActivity(next, { kind: 'challenge', label: `Lulus tantangan: ${findChallenge(id)?.title ?? findSqlChallenge(id)?.title ?? id}` }) : next
     })
   }, [])
 

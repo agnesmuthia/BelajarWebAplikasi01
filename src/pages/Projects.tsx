@@ -4,7 +4,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Modal } from '../components/Modal'
 import { TemplateCard, UserProjectCard } from '../components/ProjectCards'
 import { Badge, EmptyState, PageHeader, cx } from '../components/ui'
-import { FREE_TEMPLATE, PROJECT_CATALOG, PROJECT_TEMPLATES, findTemplate } from '../data/projects'
+import { FREE_TEMPLATE, FULLSTACK_TEMPLATES, PROJECT_CATALOG, PROJECT_TEMPLATES, findTemplate } from '../data/projects'
+import { missingRequirements } from '../lib/progress'
 import { useStore } from '../lib/store'
 
 type StatusFilter = 'all' | 'active' | 'review' | 'published' | 'favorite'
@@ -46,8 +47,8 @@ function MyProjects({ onBrowse }: { onBrowse: () => void }) {
   const [level, setLevel] = useState('all')
   const [q, setQ] = useState('')
 
-  const allTech = useMemo(() => [...new Set([...PROJECT_TEMPLATES, FREE_TEMPLATE].flatMap((t) => t.technologies))].sort(), [])
-  const allLevels = useMemo(() => [...new Set(PROJECT_TEMPLATES.map((t) => t.difficulty))], [])
+  const allTech = useMemo(() => [...new Set([...PROJECT_TEMPLATES, ...FULLSTACK_TEMPLATES, FREE_TEMPLATE].flatMap((t) => t.technologies))].sort(), [])
+  const allLevels = useMemo(() => [...new Set([...PROJECT_TEMPLATES, ...FULLSTACK_TEMPLATES].map((t) => t.difficulty))], [])
 
   const filtered = state.projects.filter((p) => {
     const tpl = findTemplate(p.templateId)
@@ -152,6 +153,7 @@ function StartFree() {
 }
 
 function Library() {
+  const { state } = useStore()
   const locked = PROJECT_CATALOG.reduce((n, c) => n + c.items.length, 0)
   return (
     <div className="space-y-8">
@@ -161,6 +163,14 @@ function Library() {
         <p className="muted mb-4 text-sm">Lengkap dengan brief, starter files, daftar tugas, checklist testing, dan rubrik penilaian.</p>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {PROJECT_TEMPLATES.map((t) => <TemplateCard key={t.id} template={t} />)}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-1 font-semibold text-slate-900 dark:text-white">Proyek full-stack</h2>
+        <p className="muted mb-4 text-sm">Frontend + API + autentikasi. Berjalan di preview dengan Mock API DevStudio; README menjelaskan cara pindah ke database online. Terbuka setelah checkpoint pelajaran terkait lulus.</p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {FULLSTACK_TEMPLATES.map((t) => <TemplateCard key={t.id} template={t} lockedBy={missingRequirements(state, t)} />)}
         </div>
       </section>
 

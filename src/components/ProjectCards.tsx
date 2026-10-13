@@ -1,5 +1,6 @@
-import { Clock, Star } from 'lucide-react'
+import { Clock, Lock, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { findLesson } from '../data/curriculum'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
 import { relativeTime } from '../lib/date'
 import { projectProgress } from '../lib/progress'
@@ -45,7 +46,7 @@ export function UserProjectCard({ project }: { project: UserProject }) {
   )
 }
 
-export function TemplateCard({ template }: { template: ProjectTemplate }) {
+export function TemplateCard({ template, lockedBy = [] }: { template: ProjectTemplate; lockedBy?: string[] }) {
   return (
     <Link to={`/projects/library/${template.id}`} className="card card-hover group flex h-full flex-col overflow-hidden">
       <div className={cx('relative h-24 bg-gradient-to-br p-4 text-white', ACCENT[template.accent])}>
@@ -55,6 +56,7 @@ export function TemplateCard({ template }: { template: ProjectTemplate }) {
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-cyan-300">{template.title}</h3>
         <p className="muted mt-1 text-sm">{template.tagline}</p>
+        {lockedBy.length > 0 && <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300"><Lock className="size-3.5" /> Terbuka setelah checkpoint “{lockedBy.map((id) => findLesson(id)?.title ?? id).join('”, “')}” lulus</p>}
         <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
           <Badge tone="emerald">{template.difficulty}</Badge>
           <Badge><Clock className="size-3" /> ±{template.estimatedHours} jam</Badge>

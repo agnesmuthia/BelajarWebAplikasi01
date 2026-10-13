@@ -3,10 +3,40 @@
 Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, **Phase 4 — Git & GitHub**, **Phase 5 — Local Workflow**, dan **Phase 6 — Deployment**. Fitur fase
+> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, **Phase 4 — Git & GitHub**, **Phase 5 — Local Workflow**, **Phase 6 — Deployment**, dan **Phase 7 — Full-Stack**. Fitur fase
 > berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
 
 ---
+
+## Phase 7 — Full-Stack
+
+| Fitur | Keterangan |
+|---|---|
+| **3 modul baru (8 pelajaran + kuis)** | *API Integration* (HTTP/JSON/status code, fetch + async/await + loading/error), *Backend Fundamentals* (routing, serverless function & environment variable, validasi di server), *Database and Authentication* (SELECT, CRUD/JOIN/constraint, hash password & token, Supabase + Row Level Security + backup/migrasi). |
+| **Full-Stack Lab** (`/#/fullstack`) | Ringkasan arsitektur & tabel “apa yang nyata, apa yang simulasi”, Mock API playground, SQL Lab, Supabase & Cloud, dan checklist + troubleshooting deploy full-stack. |
+| **Mock API** (simulasi) | Kode di preview memanggil `fetch('/api/...')`; DevStudio melayaninya dari `api/config.json`: REST otomatis (GET/POST/PATCH/PUT/DELETE, `?q=`, `?sort=`, `?limit=`), validasi kolom, `/api/auth/register|login|me|logout` dengan hash PBKDF2 + salt, token sesi, dan aturan akses `public`, `read-public`, `owner`, `admin-write` (meniru RLS). Tab **API** menampilkan setiap request beserta penjelasan keputusan server, isi data, dan simulasi jaringan lambat/error 500/offline. |
+| **SQL Lab** (nyata) | SQLite asli (sql.js/WebAssembly, dimuat hanya saat dibuka) dengan data sekolah **fiktif**, 10 tantangan terperiksa otomatis (SELECT → CREATE TABLE), mode bebas, struktur tabel, dan penjelasan error SQLite dalam bahasa Indonesia. Lulus tanpa melihat solusi = bukti skill *Database*. |
+| **2 tantangan Coding Lab baru** | “Daftar dari API” dan “Form kirim ke API” — termasuk pemeriksaan saat server mengembalikan 500 dan pemeriksaan XSS. |
+| **2 proyek full-stack** | *Aplikasi CRUD Inventaris* (terbuka setelah checkpoint `api-2`) dan *Aplikasi Login & Catatan Pribadi* (setelah `db-3`). README masing-masing menjelaskan endpoint dan cara pindah ke Supabase. |
+| **Sinkronisasi cloud (opsional)** | Cadangkan/pulihkan progres ke **proyek Supabase milikmu sendiri** lewat REST API resmi. SQL penyiapan menyalakan RLS, policy “milik sendiri”, dan `GRANT` hanya ke `authenticated`. |
+| **Siap deploy?** | Peringatan baru jika proyek masih bergantung pada Mock API (`/api/...` akan 404 setelah online). Level 4 Deploy hub kini terbuka. |
+| **Skill baru** | Integrasi API, Dasar Backend, Database & SQL, Autentikasi & Otorisasi. |
+
+**Keamanan & kejujuran.**
+- Mock API **bukan** server online: berjalan di halaman DevStudio, datanya di localStorage browser ini (batas ±400 KB). Akun latihan jangan memakai password asli.
+- Cloud sync hanya menerima **publishable key** (`sb_publishable_…`) atau anon key lama. **Secret key / service_role ditolak** karena melewati RLS. Token sesi disimpan di sessionStorage (hilang saat tab ditutup); password tidak disimpan. File proyek di IndexedDB **tidak** ikut dicadangkan — tetap gunakan ZIP.
+- Sebelum memulihkan dari cloud, DevStudio mengunduh salinan progres saat ini.
+- Tidak ada tombol AI: AI Coding Mentor butuh backend dengan API key berbayar; polanya diajarkan di pelajaran *Backend* (serverless function + environment variable).
+
+**Data Supabase yang dipakai (dicek 13 Oktober 2026):** penamaan kunci publishable/secret dan perubahan Data API (tabel baru perlu `GRANT` eksplisit) dari dokumentasi & changelog resmi Supabase; batas paket gratis dari ringkasan pihak ketiga — **cek halaman harga resmi**.
+
+**Cara menguji Phase 7:**
+1. Buka **Full-Stack** di menu → tab *Mock API* → *Kirim request*: klik “daftar”, kirim, lalu `GET /api/todos` dengan dan tanpa token (200 vs 401).
+2. Tab *SQL Lab*: kerjakan tantangan 1, lalu coba `SELECT * FROM murid` untuk melihat penjelasan error.
+3. **Coding Lab** → “Daftar dari API”: kerjakan, buka tab *API*, ubah simulasi ke “Server error (500)” lalu Run.
+4. Lulus checkpoint `api-2` → **Projects → Library → Aplikasi CRUD Inventaris** → buka editor; tambah barang di preview dan lihat tab *API*.
+5. (Opsional, butuh akun Supabase) tab *Supabase & Cloud*: ikuti langkah penyiapan, lalu uji dua akun berbeda.
+6. `npm test` (119 test) dan `npm run build`.
 
 ## Phase 6 — Deployment
 
@@ -32,7 +62,7 @@ resmi sebelum memilih**. Tidak ada janji bahwa semua fitur selalu gratis; risiko
 
 **Cara menguji Phase 6:** buka **Deploy** di menu → coba pemilih platform → tempel contoh log → isi domain
 di pembuat DNS. Buka sebuah proyek → tab **Publikasi** → lihat “Siap deploy?”, tambahkan `netlify.toml`,
-lalu cek file itu muncul di editor proyek. Jalankan `npm test` (79 test) dan `npm run build`.
+lalu cek file itu muncul di editor proyek. Jalankan `npm test` dan `npm run build`.
 
 ## Phase 5 — Local Workflow
 

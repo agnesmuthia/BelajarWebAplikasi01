@@ -1,4 +1,5 @@
 import type { Difficulty } from '../lib/types'
+import { FULLSTACK_TEMPLATES } from './projectsFullstack'
 import type { SkillId } from './skills'
 
 export interface ProjectFile {
@@ -30,6 +31,8 @@ export interface ProjectTemplate {
   technologies: string[]
   /** Pelajaran yang disarankan selesai sebelum mengerjakan proyek. */
   recommendedLessons: string[]
+  /** Checkpoint yang WAJIB lulus sebelum proyek bisa dibuat (proyek lanjutan). */
+  requires?: string[]
   objectives: string[]
   requirements: string[]
   tasks: ProjectTask[]
@@ -780,8 +783,10 @@ function blankPage() {
 
 export function findTemplate(id: string) {
   if (id === FREE_TEMPLATE.id) return FREE_TEMPLATE
-  return PROJECT_TEMPLATES.find((t) => t.id === id)
+  return PROJECT_TEMPLATES.find((t) => t.id === id) ?? FULLSTACK_TEMPLATES.find((t) => t.id === id)
 }
+
+export { FULLSTACK_TEMPLATES }
 
 /** Katalog proyek lanjutan — terbuka bertahap pada fase berikutnya. */
 export const PROJECT_CATALOG: { category: string; items: string[] }[] = [
@@ -843,8 +848,6 @@ export const PROJECT_CATALOG: { category: string; items: string[] }[] = [
   {
     category: 'Full-Stack',
     items: [
-      'Aplikasi login dan profil pengguna',
-      'CRUD application dengan database',
       'Dashboard admin',
       'Aplikasi manajemen proyek',
       'Sistem komentar dan notifikasi',

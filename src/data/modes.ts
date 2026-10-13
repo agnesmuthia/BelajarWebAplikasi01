@@ -32,4 +32,4 @@ export const MODE_INFO: Record<LearningMode, ModeInfo> = {
   deploy: { label: 'Deployment Mode', description: 'Menerbitkan proyek ke internet.', icon: Rocket, phase: 6, effect: 'Continue Learning membuka pelajaran deployment berikutnya, dan proyek langsung terbuka di tab Repo & Deploy.' },
 }
 
-export const CURRENT_PHASE = 6
+export const CURRENT_PHASE = 7

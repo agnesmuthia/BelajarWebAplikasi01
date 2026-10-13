@@ -10,6 +10,7 @@ import {
   Loader2,
   Play,
   RotateCcw,
+  Server,
   Target,
   Terminal,
   TriangleAlert,
@@ -21,6 +22,8 @@ import { Modal } from '../components/Modal'
 import { cx } from '../components/ui'
 import type { Challenge } from '../data/challenges'
 import { solutionFiles } from '../data/challenges'
+import { ApiPanel } from '../fullstack/ApiPanel'
+import { useMockApi } from '../fullstack/useMockApi'
 import { buildZip, downloadBlob, slugify } from '../lib/download'
 import { useStore } from '../lib/store'
 import { useToast } from '../lib/toast'
@@ -44,7 +47,7 @@ interface CheckOutcome {
   pass: boolean
   actual?: string
 }
-type OutTab = 'preview' | 'console' | 'checks' | 'target'
+type OutTab = 'preview' | 'console' | 'api' | 'checks' | 'target'
 type Pane = 'info' | 'code' | 'output'
 
 const FILES: LabFileKey[] = ['html', 'css', 'js']
@@ -100,6 +103,12 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
   const firstRun = useRef(true)
   const pendingLine = useRef<number | null>(null)
   const announcedPass = useRef(Boolean(challenge && state.challenges[challenge.id]?.passedAt))
+  const targetFrame = useRef<HTMLIFrameElement>(null)
+  const targetToken = useRef(newToken())
+  // Mock API: data dikembalikan ke seed setiap Run agar pemeriksaan selalu konsisten.
+  const api = useMockApi({ scope: `lab:${challenge?.id ?? draftId}`, configText: challenge?.api ?? null, iframe, token, persist: false })
+  useMockApi({ scope: `lab-target:${challenge?.id ?? draftId}`, configText: challenge?.api ?? null, iframe: targetFrame, token: targetToken, persist: false })
+  const resetApi = api.reset
 
   const push = useCallback((e: Omit<ConsoleEntry, 'id'>) => {
     setEntries((prev) => (prev.length >= MAX_CONSOLE ? prev : [...prev, { ...e, id: ++entryId.current }]))
@@ -108,7 +117,8 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
   const run = useCallback(
     (f: LabFiles) => {
       token.current = newToken()
-      const b = buildLabDocument(f, { token: token.current, checks: challenge?.checks ?? [], capture: true })
+      if (challenge?.api) resetApi()
+      const b = buildLabDocument(f, { token: token.current, checks: challenge?.checks ?? [], capture: true, api: !!challenge?.api })
       built.current = b
       const sys: ConsoleEntry[] = []
       if (!b.linksCss && f.css.trim()) sys.push({ id: ++entryId.current, level: 'system', text: 'style.css tidak dipakai: index.html tidak punya <link rel="stylesheet" href="style.css">.' })
@@ -121,7 +131,7 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
       if (challenge && !firstRun.current) recordChallenge(challenge.id, { run: true })
       firstRun.current = false
     },
-    [challenge, recordChallenge],
+    [challenge, recordChallenge, resetApi],
   )
 
   // Pesan dari iframe: hanya diterima jika berasal dari iframe kita DAN token run saat ini.
@@ -260,13 +270,14 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
     toast('Kode dikembalikan ke awal.', 'info')
   }
 
-  const targetDoc = useMemo(() => (challenge ? buildLabDocument(solutionFiles(challenge), { capture: false }).html : ''), [challenge])
+  const targetDoc = useMemo(() => (challenge ? buildLabDocument(solutionFiles(challenge), { capture: false, api: !!challenge.api, token: targetToken.current }).html : ''), [challenge])
   const errorCount = entries.filter((e) => e.level === 'error').length
   const passCount = checks?.filter((c) => c.pass).length ?? 0
 
   const outTabs: { id: OutTab; label: string; icon: typeof Eye; badge?: ReactNode }[] = [
     { id: 'preview', label: 'Preview', icon: Eye },
     { id: 'console', label: 'Console', icon: Terminal, badge: entries.length ? <span className={cx('rounded-full px-1.5 text-[10px]', errorCount ? 'bg-rose-500 text-white' : 'bg-slate-200 dark:bg-white/10')}>{errorCount || entries.length}</span> : null },
+    ...(challenge?.api ? [{ id: 'api' as const, label: 'API', icon: Server, badge: api.log.length ? <span className="rounded-full bg-slate-200 px-1.5 text-[10px] dark:bg-white/10">{api.log.length}</span> : null }] : []),
     ...(challenge
       ? [
           { id: 'checks' as const, label: 'Cek', icon: ListChecks, badge: checks ? <span className={cx('rounded-full px-1.5 text-[10px] text-white', passCount === challenge.checks.length ? 'bg-emerald-500' : 'bg-amber-500')}>{passCount}/{challenge.checks.length}</span> : null },
@@ -405,6 +416,12 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
               </div>
             )}
 
+            {out === 'api' && challenge?.api && (
+              <div className="absolute inset-0 overflow-hidden bg-white dark:bg-ink-900">
+                <ApiPanel api={api} />
+              </div>
+            )}
+
             {out === 'checks' && challenge && (
               <div className="absolute inset-0 overflow-y-auto bg-white p-4 dark:bg-ink-900">
                 {!checks ? (
@@ -441,7 +458,7 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
             {out === 'target' && challenge && (
               <div className="absolute inset-0 flex flex-col">
                 <p className="muted border-b border-slate-200 bg-white px-3 py-1.5 text-xs dark:border-white/10 dark:bg-ink-900">Hasil yang diharapkan (kodenya tidak ditampilkan). Bandingkan dengan tab Preview.</p>
-                <iframe title="Hasil yang diharapkan" sandbox={LAB_SANDBOX} srcDoc={targetDoc} className="w-full flex-1 bg-white" />
+                <iframe ref={targetFrame} title="Hasil yang diharapkan" sandbox={LAB_SANDBOX} srcDoc={targetDoc} className="w-full flex-1 bg-white" />
               </div>
             )}
           </div>

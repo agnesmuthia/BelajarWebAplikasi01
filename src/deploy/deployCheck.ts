@@ -43,8 +43,9 @@ function refsOf(path: string, text: string): { ref: string; tag: string }[] {
 export function checkDeploy(files: DeployFile[]): DeployCheckItem[] {
   const paths = new Set(files.map((f) => f.path))
   const lower = new Map(files.map((f) => [f.path.toLowerCase(), f.path]))
-  const res = { index: [] as string[], absolute: [] as string[], caseRefs: [] as string[], missing: [] as string[], names: [] as string[], secrets: [] as string[], mixed: [] as string[], big: [] as string[], placeholder: [] as string[] }
+  const res = { index: [] as string[], absolute: [] as string[], caseRefs: [] as string[], missing: [] as string[], names: [] as string[], secrets: [] as string[], mixed: [] as string[], big: [] as string[], placeholder: [] as string[], mockApi: [] as string[] }
 
+  if (paths.has('api/config.json')) res.mockApi.push('api/config.json — konfigurasi Mock API (hanya berlaku di DevStudio)')
   if (!paths.has('index.html')) res.index.push('Tidak ada index.html di folder utama proyek.')
 
   for (const f of files) {
@@ -56,6 +57,7 @@ export function checkDeploy(files: DeployFile[]): DeployCheckItem[] {
     if (/\.(png|jpe?g|gif|webp|avif)$/i.test(f.path) && f.size > 1024 * 1024) res.big.push(`${f.path} (${(f.size / 1024 / 1024).toFixed(1)} MB)`)
     if (f.text === undefined) continue
     for (const [re, label] of SECRET_PATTERNS) if (re.test(f.text)) res.secrets.push(`${f.path} — kemungkinan ${label}`)
+    if (/\.(js|mjs|html?)$/i.test(f.path) && /[`'"](\.?\/)?api\/[a-z]/i.test(f.text)) res.mockApi.push(`${f.path} memanggil /api/… (Mock API DevStudio)`)
     if (/\[(GANTI|Nama Sekolah|Nama Kamu)\]/.test(f.text) && /\.html?$/i.test(f.path)) res.placeholder.push(f.path)
     for (const { ref, tag } of refsOf(f.path, f.text)) {
       if (/^http:\/\//i.test(ref) && tag !== 'a') res.mixed.push(`${f.path} → ${ref}`)
@@ -78,6 +80,7 @@ export function checkDeploy(files: DeployFile[]): DeployCheckItem[] {
     item('mixed', 'Tidak ada sumber http:// (tanpa s)', res.mixed, 'warn', 'Situs HTTPS memblokir gambar/script dari alamat http:// (mixed content). Ganti dengan https://.'),
     item('names', 'Nama file huruf kecil tanpa spasi', res.names, 'warn', 'Spasi menjadi %20 di URL dan huruf besar mudah salah ketik. Konvensi web: huruf kecil dengan tanda hubung.'),
     item('big', 'Gambar di bawah 1 MB', res.big, 'warn', 'Gambar besar memperlambat website di ponsel dan menghabiskan kuota bandwidth hosting gratis.'),
+    item('mockapi', 'Tidak bergantung pada Mock API DevStudio', res.mockApi, 'warn', 'Mock API hanya berjalan di preview DevStudio. Setelah online, alamat /api/… menghasilkan 404 — ganti dengan backend sungguhan (mis. Supabase) atau tandai bagian ini sebagai demo.'),
     item('placeholder', 'Tidak ada placeholder [GANTI] yang tersisa', res.placeholder, 'warn', 'Placeholder yang tampil online membuat website terlihat belum selesai.'),
   ]
 }

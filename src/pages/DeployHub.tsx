@@ -2,7 +2,7 @@ import { BookOpen, CheckCircle2, Compass, ExternalLink, FileSearch, Globe, Info,
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge, PageHeader, SectionTitle, cx } from '../components/ui'
-import { findModule } from '../data/curriculum'
+import { findLesson, findModule } from '../data/curriculum'
 import { analyzeLog, firstErrorLine } from '../deploy/buildLog'
 import { DeployReadiness } from '../deploy/DeployReadiness'
 import { CHECKED_AT, PLATFORMS, dnsRecords, findPlatform, recommend, type ChooserInput, type PlatformId } from '../deploy/hosting'
@@ -14,7 +14,7 @@ const LEVELS: { n: number; title: string; lessons: string[]; note?: string }[] =
   { n: 1, title: 'Localhost', lessons: ['deploy-1'] },
   { n: 2, title: 'Free Static Hosting', lessons: ['deploy-2', 'deploy-3'] },
   { n: 3, title: 'Automatic Deployment', lessons: ['deploy-4'] },
-  { n: 4, title: 'Full-Stack', lessons: [], note: 'Frontend + backend, API, database, autentikasi, Row Level Security, dan secrets di server — dibahas di Phase 7.' },
+  { n: 4, title: 'Full-Stack', lessons: ['backend-1', 'db-4'], note: 'Frontend + backend, database, autentikasi, RLS, secrets, backup & migrasi. Checklist lengkap ada di Full-Stack Lab.' },
   { n: 5, title: 'Professional Hosting', lessons: ['deploy-5', 'deploy-6'] },
 ]
 
@@ -127,8 +127,6 @@ function DnsBuilder() {
 
 export default function DeployHub() {
   const { state } = useStore()
-  const mod = findModule('deploy')!
-  const byId = Object.fromEntries(mod.lessons.map((l) => [l.id, l]))
   const [projectId, setProjectId] = useState(state.projects[0]?.id ?? '')
   const project = state.projects.find((p) => p.id === projectId)
   const published = state.projects.filter((p) => p.deployUrl)
@@ -143,16 +141,18 @@ export default function DeployHub() {
           {LEVELS.map((lv) => (
             <li key={lv.n} className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
               <p className="mb-2 text-sm font-semibold">Level {lv.n} — {lv.title}</p>
-              {lv.note && <p className="muted flex items-start gap-1.5 text-xs"><Lock className="mt-0.5 size-3.5 shrink-0" /> {lv.note}</p>}
+              {lv.note && <p className="muted mb-2 flex items-start gap-1.5 text-xs"><Info className="mt-0.5 size-3.5 shrink-0" /> <span>{lv.note} <Link to="/fullstack?tab=checklist" className="underline">Buka checklist</Link></span></p>}
               <ul className="space-y-1.5">
                 {lv.lessons.map((id) => {
-                  const l = byId[id]
+                  const l = findLesson(id)
+                  const lm = l && findModule(l.moduleId)
+                  if (!l || !lm) return null
                   const passed = isLessonPassed(state, id)
-                  const unlocked = isLessonUnlocked(state, mod, id)
+                  const unlocked = isLessonUnlocked(state, lm, id)
                   return (
                     <li key={id}>
                       {unlocked ? (
-                        <Link to={`/learn/deploy/${id}`} className="flex items-center gap-2 text-sm hover:underline">
+                        <Link to={`/learn/${lm.id}/${id}`} className="flex items-center gap-2 text-sm hover:underline">
                           {passed ? <CheckCircle2 className="size-4 text-emerald-500" /> : <BookOpen className="size-4 text-violet-500" />} {l.title}
                         </Link>
                       ) : (

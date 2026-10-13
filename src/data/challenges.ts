@@ -1,6 +1,7 @@
 import type { CheckDef, LabFiles } from '../lab/runtime'
 import type { Difficulty } from '../lib/types'
 import type { SkillId } from './skills'
+import { apiFetchList, apiFormPost } from './challengesApi'
 
 export interface Challenge {
   id: string
@@ -21,33 +22,12 @@ export interface Challenge {
   checks: CheckDef[]
   /** Penjelasan perubahan pada solusi — ditampilkan bersama solusi. */
   solutionNotes: string[]
+  /** Isi api/config.json untuk Mock API; jika ada, preview melayani fetch('/api/...'). */
+  api?: string
 }
 
-/** Kerangka index.html standar Lab: memuat style.css dan script.js. */
-export const page = (title: string, body: string) => `<!doctype html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-${body}
-
-  <script src="script.js"></script>
-</body>
-</html>
-`
-
-export const baseCss = `body {
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-  margin: 0;
-  padding: 24px;
-  color: #1e293b;
-}
-`
+export { baseCss, page } from './challengeKit'
+import { baseCss, page } from './challengeKit'
 
 /* ------------------------------------------------------------------ */
 /*  PRACTICE                                                          */
@@ -760,7 +740,7 @@ document.querySelector('#total').textContent = 'Rp' + total.toLocaleString('id-I
   solutionNotes: ['i <= harga.length → i < harga.length. Putaran ke-4 membaca harga[3] yang undefined (dan angka + undefined menghasilkan NaN).', 'total = harga[i] → total += harga[i]. Operator = mengganti nilai; += menambahkan ke nilai lama.'],
 }
 
-export const CHALLENGES: Challenge[] = [htmlCard, cssButton, flexNav, jsSum, jsCounter, domTodo, debugImage, debugCss, debugJs, debugLoop]
+export const CHALLENGES: Challenge[] = [htmlCard, cssButton, flexNav, jsSum, jsCounter, domTodo, debugImage, debugCss, debugJs, debugLoop, apiFetchList, apiFormPost]
 
 export function findChallenge(id: string) {
   return CHALLENGES.find((c) => c.id === id)
