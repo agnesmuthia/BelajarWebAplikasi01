@@ -723,7 +723,63 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
   },
 ]
 
+/* -------------------------------------------------------------------------- */
+/*  Proyek bebas — kosong, atau diisi dengan impor folder/ZIP dari komputer   */
+/* -------------------------------------------------------------------------- */
+
+export const FREE_TEMPLATE: ProjectTemplate = {
+  id: 'free-project',
+  category: 'Bebas',
+  title: 'Proyek Bebas',
+  tagline: 'Mulai dari halaman kosong atau impor folder proyekmu sendiri.',
+  description:
+    'Proyek tanpa brief khusus: cocok untuk ide sendiri atau untuk memindahkan proyek yang sudah ada di komputer (folder atau ZIP) ke DevStudio.',
+  difficulty: 'Pemula',
+  estimatedHours: 4,
+  technologies: ['HTML', 'CSS', 'JavaScript'],
+  recommendedLessons: ['html-1', 'css-1'],
+  objectives: ['Merencanakan struktur halaman sendiri.', 'Mengelola file dan aset proyek.', 'Menguji dan mendokumentasikan proyek.'],
+  requirements: ['Minimal satu halaman index.html yang valid.', 'Tampilan rapi di ponsel dan desktop.', 'README menjelaskan tujuan proyek dan sumber aset.'],
+  tasks: [
+    { id: 'plan', title: 'Tulis tujuan proyek di README', detail: 'Siapa penggunanya dan masalah apa yang diselesaikan?', skills: [] },
+    { id: 'structure', title: 'Susun struktur halaman semantik', detail: 'header, nav, main, section, footer.', skills: ['semantic-html'] },
+    { id: 'style', title: 'Buat tampilan yang konsisten', detail: 'Tentukan palet warna dan tipografi di CSS.', skills: ['css'] },
+    { id: 'responsive', title: 'Pastikan responsif', detail: 'Uji di 375px dan 1280px.', skills: ['responsive', 'layout'] },
+    { id: 'a11y', title: 'Periksa aksesibilitas', detail: 'Jalankan tab Pemeriksaan di editor dan perbaiki temuan.', skills: ['accessibility'] },
+  ],
+  testing: sharedTesting,
+  rubric: sharedRubric,
+  accent: 'indigo',
+  files: [
+    { path: 'index.html', content: blankPage() },
+    { path: 'css/style.css', content: `*, *::before, *::after { box-sizing: border-box; }\nbody { margin: 0; font-family: system-ui, sans-serif; line-height: 1.6; }\n.container { width: min(960px, 100% - 32px); margin-inline: auto; padding-block: 32px; }\n` },
+    { path: 'js/main.js', content: '// JavaScript proyek\n' },
+    { path: 'README.md', content: '# Proyek Bebas\n\nTujuan proyek: …\n\n## Sumber aset\n\n- …\n' },
+  ],
+}
+
+function blankPage() {
+  return `<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyek Baru</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Proyek Baru</h1>
+    <p>Mulai menulis di sini.</p>
+  </main>
+  <script src="js/main.js"></script>
+</body>
+</html>
+`
+}
+
 export function findTemplate(id: string) {
+  if (id === FREE_TEMPLATE.id) return FREE_TEMPLATE
   return PROJECT_TEMPLATES.find((t) => t.id === id)
 }
 

@@ -1,9 +1,10 @@
-import { FolderKanban, FolderPlus, Lock, Search } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { FilePlus2, FolderInput, FolderKanban, FolderPlus, Lock, Search } from 'lucide-react'
+import { useMemo, useState, type FormEvent } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Modal } from '../components/Modal'
 import { TemplateCard, UserProjectCard } from '../components/ProjectCards'
 import { Badge, EmptyState, PageHeader, cx } from '../components/ui'
-import { PROJECT_CATALOG, PROJECT_TEMPLATES, findTemplate } from '../data/projects'
+import { FREE_TEMPLATE, PROJECT_CATALOG, PROJECT_TEMPLATES, findTemplate } from '../data/projects'
 import { useStore } from '../lib/store'
 
 type StatusFilter = 'all' | 'active' | 'review' | 'published' | 'favorite'
@@ -45,7 +46,7 @@ function MyProjects({ onBrowse }: { onBrowse: () => void }) {
   const [level, setLevel] = useState('all')
   const [q, setQ] = useState('')
 
-  const allTech = useMemo(() => [...new Set(PROJECT_TEMPLATES.flatMap((t) => t.technologies))].sort(), [])
+  const allTech = useMemo(() => [...new Set([...PROJECT_TEMPLATES, FREE_TEMPLATE].flatMap((t) => t.technologies))].sort(), [])
   const allLevels = useMemo(() => [...new Set(PROJECT_TEMPLATES.map((t) => t.difficulty))], [])
 
   const filtered = state.projects.filter((p) => {
@@ -109,10 +110,52 @@ function MyProjects({ onBrowse }: { onBrowse: () => void }) {
   )
 }
 
+function StartFree() {
+  const { createProject } = useStore()
+  const navigate = useNavigate()
+  const [mode, setMode] = useState<'blank' | 'import' | null>(null)
+  const [name, setName] = useState('')
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    const id = createProject(FREE_TEMPLATE.id, name)
+    navigate(`/projects/${id}/code${mode === 'import' ? '?import=1' : ''}`)
+  }
+  return (
+    <section>
+      <h2 className="mb-1 font-semibold text-slate-900 dark:text-white">Proyek sendiri</h2>
+      <p className="muted mb-4 text-sm">Punya ide atau proyek di komputer? Mulai dari halaman kosong, atau impor folder/ZIP — gambar, logo, dan font ikut terbawa.</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button className="card card-hover flex items-start gap-3 p-4 text-left" onClick={() => { setName('Proyek Baru'); setMode('blank') }}>
+          <FilePlus2 className="mt-0.5 size-5 shrink-0 text-indigo-500" />
+          <span><span className="block font-medium text-slate-900 dark:text-white">Proyek kosong</span><span className="muted text-sm">index.html, CSS, dan JS dasar yang sudah terhubung.</span></span>
+        </button>
+        <button className="card card-hover flex items-start gap-3 p-4 text-left" onClick={() => { setName('Proyek dari komputer'); setMode('import') }}>
+          <FolderInput className="mt-0.5 size-5 shrink-0 text-cyan-500" />
+          <span><span className="block font-medium text-slate-900 dark:text-white">Impor dari komputer</span><span className="muted text-sm">Pilih folder atau ZIP. Kamu melihat pratinjau sebelum file disimpan.</span></span>
+        </button>
+      </div>
+      <Modal open={mode !== null} onClose={() => setMode(null)} title={mode === 'import' ? 'Impor proyek dari komputer' : 'Proyek kosong'}>
+        <form onSubmit={submit} className="space-y-4">
+          <div>
+            <label htmlFor="free-name" className="mb-1.5 block text-sm font-medium">Nama proyek</label>
+            <input id="free-name" className="input" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} autoFocus required />
+          </div>
+          {mode === 'import' && <p className="muted text-xs">Berikutnya kamu memilih folder/ZIP sendiri. DevStudio hanya membaca file yang kamu pilih, dan menyalinnya ke penyimpanan browser — file aslinya tidak diubah.</p>}
+          <div className="flex justify-end gap-2">
+            <button type="button" className="btn-secondary" onClick={() => setMode(null)}>Batal</button>
+            <button className="btn-primary" disabled={!name.trim()}>Lanjut</button>
+          </div>
+        </form>
+      </Modal>
+    </section>
+  )
+}
+
 function Library() {
   const locked = PROJECT_CATALOG.reduce((n, c) => n + c.items.length, 0)
   return (
     <div className="space-y-8">
+      <StartFree />
       <section>
         <h2 className="mb-1 font-semibold text-slate-900 dark:text-white">Tiga proyek pertama</h2>
         <p className="muted mb-4 text-sm">Lengkap dengan brief, starter files, daftar tugas, checklist testing, dan rubrik penilaian.</p>

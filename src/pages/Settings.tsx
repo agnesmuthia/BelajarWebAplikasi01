@@ -3,6 +3,7 @@ import { useRef, useState, type ChangeEvent } from 'react'
 import { Modal } from '../components/Modal'
 import { Badge, PageHeader, cx } from '../components/ui'
 import { CURRENT_PHASE, MODE_INFO } from '../data/modes'
+import { clearAllProjectData } from '../workspace/db'
 import { clearDrafts, loadDrafts, replaceDrafts, sanitizeDrafts } from '../lab/drafts'
 import { downloadBlob } from '../lib/download'
 import { sanitizeState } from '../lib/storage'
@@ -107,7 +108,7 @@ export default function Settings() {
       <section className="card p-5 sm:p-6">
         <h2 className="font-semibold text-slate-900 dark:text-white">Data & backup</h2>
         <p className="muted mb-4 text-sm">
-          Semua progres disimpan di <b>localStorage browser ini</b>, tidak dikirim ke server mana pun. Data akan hilang jika kamu menghapus data browser atau berganti perangkat — unduh backup secara berkala.
+          Semua progres disimpan di <b>localStorage browser ini</b>, tidak dikirim ke server mana pun. Data akan hilang jika kamu menghapus data browser atau berganti perangkat — unduh backup secara berkala. File proyek (termasuk gambar) disimpan di IndexedDB dan dicadangkan lewat tombol ZIP di setiap proyek.
         </p>
         <div className="flex flex-wrap gap-2">
           <button className="btn-secondary" onClick={exportData}><Download className="size-4" /> Export backup (JSON)</button>
@@ -119,10 +120,10 @@ export default function Settings() {
       </section>
 
       <Modal open={confirmReset} onClose={() => setConfirmReset(false)} title="Reset semua data?">
-        <p className="muted text-sm">Semua progres, proyek, catatan, draft Coding Lab, dan pengaturan di browser ini akan dihapus. Unduh backup dulu jika ingin menyimpannya.</p>
+        <p className="muted text-sm">Semua progres, proyek beserta file & checkpoint-nya, catatan, draft Coding Lab, dan pengaturan di browser ini akan dihapus. Unduh backup dulu jika ingin menyimpannya.</p>
         <div className="mt-5 flex justify-end gap-2">
           <button className="btn-secondary" onClick={() => setConfirmReset(false)}>Batal</button>
-          <button className="btn bg-rose-600 text-white hover:bg-rose-500" onClick={() => { resetAll(); clearDrafts(); setConfirmReset(false); toast('Semua data direset.', 'info') }}>Reset</button>
+          <button className="btn bg-rose-600 text-white hover:bg-rose-500" onClick={() => { resetAll(); clearDrafts(); void clearAllProjectData().catch(() => {}); setConfirmReset(false); toast('Semua data direset.', 'info') }}>Reset</button>
         </div>
       </Modal>
     </div>

@@ -35,3 +35,10 @@ export function downloadProjectZip(name: string, files: ProjectFile[]) {
   const zip = buildZip(slug, files)
   downloadBlob(new Blob([zip as BlobPart], { type: 'application/zip' }), `${slug}.zip`)
 }
+
+/** ZIP dari campuran file teks dan biner. */
+export function buildZipEntries(folder: string, entries: { path: string; data: Uint8Array | string }[]): Uint8Array {
+  const out: Record<string, Uint8Array> = {}
+  for (const e of entries) out[`${folder}/${e.path}`] = typeof e.data === 'string' ? strToU8(e.data) : e.data
+  return zipSync(out, { level: 6 })
+}

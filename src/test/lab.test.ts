@@ -130,3 +130,12 @@ describe('drafts & skills', () => {
     expect(computeSkills(s).find((x) => x.skill.id === 'dom')?.level).toBe('practiced')
   })
 })
+
+describe('runtime script', () => {
+  it('is valid JavaScript after being collapsed to one line', () => {
+    const html = buildLabDocument({ html: '<!doctype html><html><head></head><body></body></html>', css: '', js: '' }, { token: 't', checks: CHALLENGES[0].checks }).html
+    const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1])
+    expect(scripts.length).toBeGreaterThanOrEqual(2)
+    for (const s of scripts) expect(() => new Function(s)).not.toThrow()
+  })
+})

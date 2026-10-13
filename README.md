@@ -3,10 +3,34 @@
 Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini mencakup **Phase 1 — Foundation** dan **Phase 2 — Coding Lab**. Fitur fase
+> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, dan **Phase 3 — Project Workspace**. Fitur fase
 > berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
 
 ---
+
+## Phase 3 — Project Workspace
+
+Buka proyek → **Buka editor** (`/#/projects/<id>/code`).
+
+| Fitur | Keterangan |
+|---|---|
+| **Editor multi-file** | Pohon folder, banyak tab, CodeMirror untuk HTML/CSS/JS/JSON/Markdown, simpan otomatis, Format. |
+| **Operasi file** | File baru, folder baru (dengan `.gitkeep`), ubah nama/pindahkan file atau folder, hapus — semua dengan validasi path. |
+| **Impor dari komputer** | *Pilih file*, *Pilih folder*, *ZIP*, atau **drag & drop** (termasuk folder). Pratinjau sebelum disimpan: lokasi tujuan, file yang akan **ditimpa** (bisa dibatalkan per file), file yang dilewati beserta alasannya, dan opsi merapikan nama file. |
+| **Penampil aset** | Pratinjau gambar/audio/video, ukuran & dimensi, peringatan gambar terlalu besar, dan **cara menulis path relatif dari setiap file HTML/CSS** di proyek. |
+| **Preview multi-halaman** | Gambar, font, dan `url()` di CSS dari proyek ikut tampil; link ke halaman lain (`kontak.html`) berpindah halaman di preview; rujukan ke file yang tidak ada dilaporkan di Console. |
+| **Pemeriksaan otomatis** | Atribut `alt`, `lang`, `<title>`, meta viewport, satu `<h1>`, urutan heading, label input, link kosong, placeholder `[GANTI]`, dan file lokal yang hilang. |
+| **Checkpoint** | “Foto” seluruh proyek, mirip commit: status perubahan (seperti `git status`), **diff baris per baris**, dan pulihkan. Checkpoint otomatis dibuat saat proyek pertama dibuka, sebelum menghapus, sebelum impor yang menimpa, dan sebelum memulihkan. |
+| **Proyek sendiri** | *Project Library → Proyek kosong* atau *Impor dari komputer* (folder/ZIP). |
+| **ZIP** | Unduh seluruh proyek (teks + gambar) dan impor kembali kapan saja. |
+
+**Penyimpanan:** file proyek disimpan di **IndexedDB** browser (maks. 5 MB per file, 50 MB per proyek).
+Isi file biner disimpan sekali per hash SHA-256 — konsep yang sama dengan objek Git. File asli di
+komputer tidak pernah diubah. File proyek **tidak** ikut dalam backup JSON; gunakan tombol ZIP.
+
+**Batasan yang jujur:** checkpoint adalah latihan konsep commit, *bukan* Git sungguhan (Git & GitHub di
+Phase 4). Preview tetap hanya HTML/CSS/JS biasa; aset yang dimuat lewat JavaScript (mis. `new Image()`
+dengan path relatif) dan `@import` CSS belum diterjemahkan.
 
 ## Phase 2 — Coding Lab
 
@@ -61,6 +85,7 @@ Browser
      │    └─ sanitizeState()  → validasi semua data dari localStorage / file backup
      ├─ data/                 → kurikulum, tantangan, template proyek, skill (konten statis)
      ├─ lab/                  → Coding Lab: editor, runtime preview, pemeriksa, glosarium
+     ├─ workspace/            → file proyek di IndexedDB (files · blobs · snapshots)
      │    └─ runtime.ts       → gabungkan 3 file → 1 dokumen + peta baris + skrip runtime
      └─ iframe sandbox        → preview kode yang terisolasi (lihat Keamanan)
           └─ postMessage      → console, error, dan hasil pemeriksaan dikirim ke aplikasi
@@ -81,6 +106,7 @@ Tidak ada backend dan tidak ada secrets. Semua data tetap di browser pengguna.
 │   ├── pages/               # Satu file per halaman
 │   ├── data/                # curriculum*.ts, challenges.ts, projects.ts, skills.ts, modes.ts
 │   ├── lab/                 # CodeEditor, LabWorkspace, runtime, loopProtect, glossary, errorHints
+│   ├── workspace/           # IndexedDB, impor, pohon file, checkpoint & diff, audit
 │   ├── lib/                 # store, storage, progress, preview, highlight, download
 │   └── test/                # Unit & component test (Vitest + Testing Library)
 ├── vite.config.ts
@@ -155,7 +181,7 @@ diperbarui otomatis. Hentikan server dengan **Ctrl + C**.
 Otomatis:
 
 ```bash
-npm test          # 31 test: kurikulum, validasi data, progres, preview, alur kuis, Coding Lab
+npm test          # 42 test: kurikulum, data, progres, preview, kuis, Coding Lab, Project Workspace
 npm run build     # memastikan TypeScript & build produksi lolos
 ```
 
@@ -184,6 +210,16 @@ Manual Coding Lab:
 4. Klik **Format** pada kode yang berantakan; klik **Explain** pada sebuah baris.
 5. Muat ulang halaman → kode masih ada (draft). **Reset** → kembali ke kode awal.
 6. Buka semua petunjuk → **Lihat solusi** → *Terapkan ke editor* → semua cek hijau, badge “dibantu solusi”.
+
+Manual Project Workspace:
+
+1. *Projects → Project Library → Impor dari komputer* → **Pilih folder** berisi website lama (atau seret folder/ZIP ke halaman).
+   Periksa pratinjau impor: file yang akan ditimpa, nama yang dirapikan, file yang dilewati.
+2. Klik sebuah gambar di pohon file → lihat ukuran dan cara menulis path dari `index.html` dan `css/style.css`.
+3. Di Preview, klik link ke halaman lain → preview pindah halaman. Rujukan ke gambar yang tidak ada muncul di Console.
+4. Tab **Pemeriksaan** → perbaiki temuan (mis. tambahkan `alt`).
+5. Tab **Checkpoint** → simpan “Impor proyek awal”, ubah sesuatu, **Lihat perubahan**, lalu **Pulihkan**.
+6. Muat ulang browser → file dan perubahan tetap ada. Unduh **ZIP** dan buka di VS Code.
 
 ---
 

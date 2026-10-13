@@ -82,7 +82,7 @@ export function Layout() {
   const [drawer, setDrawer] = useState(false)
   const location = useLocation()
   // Halaman editor Coding Lab memakai lebar & tinggi penuh layar.
-  const inWorkspace = /^\/lab\/(c|play)\//.test(location.pathname)
+  const inWorkspace = /^\/lab\/(c|play)\/|^\/projects\/[^/]+\/code$/.test(location.pathname)
 
   useEffect(() => {
     window.scrollTo(0, 0)

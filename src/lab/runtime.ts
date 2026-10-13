@@ -70,8 +70,6 @@ export interface BuiltDocument {
   linksJs: boolean
 }
 
-const RE_LINK = /<link\b[^>]*\bhref\s*=\s*["'](?:\.\/)?style\.css["'][^>]*>/i
-const RE_SCRIPT = /<script\b[^>]*\bsrc\s*=\s*["'](?:\.\/)?script\.js["'][^>]*>\s*<\/script\s*>/i
 const RE_INLINE_SCRIPT = /(<script\b(?![^>]*\bsrc\s*=)[^>]*>)([\s\S]*?)(<\/script\s*>)/gi
 
 const escapeScript = (s: string) => s.replace(/<\/script/gi, '<\\/script')
@@ -114,6 +112,7 @@ if(lp[id]>5000){if(!lt[id])lt[id]=Date.now();else if(Date.now()-lt[id]>1000){lp[
 window.addEventListener('error',function(e){
 if(e.target&&e.target!==window&&e.target.tagName){var el=e.target;P({type:'resource',text:'Gagal memuat <'+el.tagName.toLowerCase()+'> '+(el.getAttribute('src')||el.getAttribute('href')||'')});return;}
 var msg=e.message||'Error';errs.push(msg);P({type:'error',text:msg,line:e.lineno||0,col:e.colno||0,loc:e.error&&e.error.__dsLoc?e.error.__dsLoc:null});},true);
+document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[href]'):null;if(!a||e.defaultPrevented)return;var h=a.getAttribute('href')||'';if(!h||h.charAt(0)==='#'||/^(mailto|tel|javascript):/i.test(h))return;e.preventDefault();if(/^[a-z][a-z0-9+.-]*:|^\\/\\//i.test(h)){out('info',['Link eksternal tidak dibuka di dalam preview: '+h]);return;}P({type:'navigate',href:h});});
 window.addEventListener('submit',function(e){if(!e.defaultPrevented){e.preventDefault();out('warn',['Form dikirim tanpa event.preventDefault(). Di website sungguhan, halaman akan dimuat ulang (Lab mencegahnya).']);}});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;var msg='Promise ditolak: '+(r&&r.message?r.message:fmt(r,0));errs.push(msg);P({type:'error',text:msg,line:0,col:0});});
 var CHECKS=[];window.__dsSetChecks=function(c){CHECKS=c;};
@@ -148,71 +147,176 @@ function checksScript(checks: CheckDef[]): string {
 
 interface Seg {
   text: string
-  file: LabFileKey
+  file: string
   /** Nomor baris (di file asal) tempat segmen ini dimulai. */
   startLine: number
 }
 
 const countLines = (s: string) => s.split('\n').length - 1
 
-export function buildLabDocument(
-  files: LabFiles,
-  opts: { token?: string; checks?: CheckDef[]; capture?: boolean } = {},
-): BuiltDocument {
-  // 1. Lindungi loop di <script> inline milik pengguna (jumlah baris tetap).
-  const html = files.html.replace(RE_INLINE_SCRIPT, (_m, open: string, body: string, close: string, offset: number) => {
-    const lineOffset = files.html.slice(0, offset + open.length).split('\n').length - 1
-    return open + escapeScript(protectLoops(body, { file: 'html', lineOffset })) + close
+export interface DocLocation {
+  file: string
+  line: number
+}
+
+export interface BuildInput {
+  /** Path halaman HTML yang dirender, mis. "index.html" atau "pages/kontak.html". */
+  entry: string
+  /** File teks proyek: path → isi. */
+  texts: Map<string, string>
+  /** Aset biner proyek: path → data URL. */
+  assets?: Map<string, string>
+  token?: string
+  checks?: CheckDef[]
+  capture?: boolean
+}
+
+export interface BuildResult {
+  html: string
+  mapLine: (docLine: number) => DocLocation | null
+  /** Referensi ke file lokal yang tidak ada di proyek. */
+  missing: { from: string; ref: string }[]
+  linkedCss: string[]
+  linkedJs: string[]
+}
+
+const RE_LINK_TAG = /<link\b[^>]*>/gi
+const RE_SCRIPT_SRC = /<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>\s*<\/script\s*>/gi
+const attr = (tag: string, name: string) => new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, 'i').exec(tag)?.[1]
+
+function dirOf(path: string) {
+  const i = path.lastIndexOf('/')
+  return i === -1 ? '' : path.slice(0, i)
+}
+
+/** Resolusi path relatif dari folder `dir`; null untuk URL eksternal, data:, atau anchor. */
+export function resolveRef(dir: string, ref: string): string | null {
+  const clean = ref.split(/[?#]/)[0].trim()
+  if (!clean || /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(clean)) return null
+  const stack = clean.startsWith('/') || !dir ? [] : dir.split('/')
+  for (const seg of clean.replace(/^\/+/, '').split('/')) {
+    if (seg === '' || seg === '.') continue
+    if (seg === '..') {
+      if (!stack.length) return null
+      stack.pop()
+    } else {
+      try {
+        stack.push(decodeURIComponent(seg))
+      } catch {
+        stack.push(seg)
+      }
+    }
+  }
+  return stack.join('/') || null
+}
+
+/**
+ * Gabungkan satu halaman HTML beserta CSS, JS, dan aset lokal yang dirujuknya menjadi
+ * satu dokumen untuk iframe srcdoc. Jumlah baris setiap file dipertahankan, sehingga
+ * nomor baris error bisa dipetakan kembali ke file & baris aslinya.
+ */
+export function buildDocument(input: BuildInput): BuildResult {
+  const { entry, texts } = input
+  const assets = input.assets ?? new Map<string, string>()
+  const missing: BuildResult['missing'] = []
+  const linkedCss: string[] = []
+  const linkedJs: string[] = []
+  const entryDir = dirOf(entry)
+  const source = texts.get(entry) ?? `<p>${entry} tidak ditemukan.</p>`
+  const noteMissing = (from: string, ref: string) => {
+    if (!missing.some((m) => m.from === from && m.ref === ref)) missing.push({ from, ref })
+  }
+
+  /** Ganti url(...) yang menunjuk aset proyek dengan data URL (tidak menambah baris). */
+  const rewriteCss = (css: string, from: string) =>
+    css.replace(/url\(\s*(["']?)([^"')]+)\1\s*\)/gi, (m, _q: string, ref: string) => {
+      const p = resolveRef(dirOf(from), ref)
+      if (!p) return m
+      const data = assets.get(p)
+      if (data) return `url("${data}")`
+      if (!texts.has(p)) noteMissing(from, ref)
+      return m
+    })
+
+  /** Ganti src/href/poster yang menunjuk aset proyek dengan data URL. */
+  const rewriteHtml = (html: string) =>
+    rewriteCss(
+      html.replace(/(\s(?:src|href|poster)\s*=\s*)(["'])([^"']*)\2/gi, (m, pre: string, q: string, ref: string) => {
+        const p = resolveRef(entryDir, ref)
+        if (!p) return m
+        const data = assets.get(p)
+        if (data) return `${pre}${q}${data}${q}`
+        if (!texts.has(p)) noteMissing(entry, ref)
+        return m
+      }),
+      entry,
+    )
+
+  // 1. Lindungi loop di <script> inline (jumlah baris tetap).
+  const html = source.replace(RE_INLINE_SCRIPT, (_m, open: string, body: string, close: string, offset: number) => {
+    const lineOffset = source.slice(0, offset + open.length).split('\n').length - 1
+    return open + escapeScript(protectLoops(body, { file: entry, lineOffset })) + close
   })
 
-  const head = `<meta http-equiv="Content-Security-Policy" content="${LAB_CSP}"><script>${runtimeScript(opts.token ?? '', opts.capture ?? true)}</script>`
+  const head = `<meta http-equiv="Content-Security-Policy" content="${LAB_CSP}"><script>${runtimeScript(input.token ?? '', input.capture ?? true)}</script>`
+
+  // 2. Kumpulkan posisi yang perlu diganti / disisipi.
+  type Edit = { at: number; len: number; kind: 'head' } | { at: number; len: number; kind: 'css' | 'js'; path: string }
+  const edits: Edit[] = []
+  const headMatch = /<head(\s[^>]*)?>/i.exec(html) ?? /<!doctype[^>]*>/i.exec(html)
+  edits.push({ at: headMatch ? headMatch.index + headMatch[0].length : 0, len: 0, kind: 'head' })
+  for (const m of html.matchAll(RE_LINK_TAG)) {
+    const rel = attr(m[0], 'rel')
+    const href = attr(m[0], 'href')
+    if (!href || !/\bstylesheet\b/i.test(rel ?? '')) continue
+    const p = resolveRef(entryDir, href)
+    if (!p) continue
+    if (texts.has(p)) edits.push({ at: m.index!, len: m[0].length, kind: 'css', path: p })
+    else noteMissing(entry, href)
+  }
+  for (const m of html.matchAll(RE_SCRIPT_SRC)) {
+    const p = resolveRef(entryDir, m[1])
+    if (!p) continue
+    if (texts.has(p)) edits.push({ at: m.index!, len: m[0].length, kind: 'js', path: p })
+    else noteMissing(entry, m[1])
+  }
+  edits.sort((a, b) => a.at - b.at)
 
   const segs: Seg[] = []
   let cursor = 0
   let htmlLine = 1
   const pushHtml = (end: number) => {
-    const text = html.slice(cursor, end)
-    segs.push({ text, file: 'html', startLine: htmlLine })
-    htmlLine += countLines(text)
+    const text = rewriteHtml(html.slice(cursor, end))
+    segs.push({ text, file: entry, startLine: htmlLine })
+    htmlLine += countLines(html.slice(cursor, end))
     cursor = end
   }
 
-  // 2. Kumpulkan posisi yang perlu diganti / disisipi, urut dari depan.
-  type Edit = { at: number; len: number; kind: 'head' | 'css' | 'js' }
-  const edits: Edit[] = []
-  // Tanpa <head>, sisipkan setelah doctype agar browser tidak masuk quirks mode.
-  const headMatch = /<head(\s[^>]*)?>/i.exec(html) ?? /<!doctype[^>]*>/i.exec(html)
-  edits.push({ at: headMatch ? headMatch.index + headMatch[0].length : 0, len: 0, kind: 'head' })
-  const link = RE_LINK.exec(html)
-  if (link) edits.push({ at: link.index, len: link[0].length, kind: 'css' })
-  const script = RE_SCRIPT.exec(html)
-  if (script) edits.push({ at: script.index, len: script[0].length, kind: 'js' })
-  edits.sort((a, b) => a.at - b.at)
-
   for (const e of edits) {
-    if (e.at < cursor) continue // tumpang tindih (mis. link di dalam tag head yang aneh) — abaikan
+    if (e.at < cursor) continue
     pushHtml(e.at)
     const consumed = html.slice(e.at, e.at + e.len)
-    if (e.kind === 'head') segs.push({ text: head, file: 'html', startLine: htmlLine })
-    if (e.kind === 'css') {
-      segs.push({ text: '<style>', file: 'html', startLine: htmlLine })
-      segs.push({ text: '\n' + escapeStyle(files.css), file: 'css', startLine: 0 })
+    if (e.kind === 'head') segs.push({ text: head, file: entry, startLine: htmlLine })
+    else {
+      const content = texts.get(e.path) ?? ''
+      const isCss = e.kind === 'css'
+      ;(isCss ? linkedCss : linkedJs).push(e.path)
+      segs.push({ text: isCss ? '<style>' : '<script>', file: entry, startLine: htmlLine })
+      segs.push({
+        text: '\n' + (isCss ? escapeStyle(rewriteCss(content, e.path)) : escapeScript(protectLoops(content, { file: e.path }))),
+        file: e.path,
+        startLine: 0,
+      })
       htmlLine += countLines(consumed)
-      segs.push({ text: '</style>', file: 'html', startLine: htmlLine })
-    }
-    if (e.kind === 'js') {
-      segs.push({ text: '<script>', file: 'html', startLine: htmlLine })
-      segs.push({ text: '\n' + escapeScript(protectLoops(files.js, { file: 'js' })), file: 'js', startLine: 0 })
-      htmlLine += countLines(consumed)
-      segs.push({ text: '</script>', file: 'html', startLine: htmlLine })
+      segs.push({ text: isCss ? '</style>' : '</script>', file: entry, startLine: htmlLine })
     }
     cursor = e.at + e.len
   }
   pushHtml(html.length)
-  segs.push({ text: checksScript(opts.checks ?? []), file: 'html', startLine: htmlLine })
+  segs.push({ text: checksScript(input.checks ?? []), file: entry, startLine: htmlLine })
 
-  // 3. Bangun peta baris: setiap baris dokumen dimiliki segmen tempat baris itu DIMULAI.
-  const lineMap: MappedLine[] = [{ file: 'html', line: 1 }, { file: 'html', line: 1 }]
+  // 3. Peta baris: setiap baris dokumen dimiliki segmen tempat baris itu DIMULAI.
+  const lineMap: DocLocation[] = [{ file: entry, line: 1 }, { file: entry, line: 1 }]
   for (const s of segs) {
     let k = 0
     for (let i = 0; i < s.text.length; i++) {
@@ -223,10 +327,32 @@ export function buildLabDocument(
     }
   }
 
+  return { html: segs.map((s) => s.text).join(''), mapLine: (l) => lineMap[l] ?? null, missing, linkedCss, linkedJs }
+}
+
+/* -------------------- Coding Lab: tiga file tetap -------------------- */
+
+const PATH_TO_KEY: Record<string, LabFileKey> = { 'index.html': 'html', 'style.css': 'css', 'script.js': 'js' }
+
+export function labKeyFromPath(path: string): LabFileKey | null {
+  return PATH_TO_KEY[path] ?? null
+}
+
+export function buildLabDocument(files: LabFiles, opts: { token?: string; checks?: CheckDef[]; capture?: boolean } = {}): BuiltDocument {
+  const texts = new Map([
+    ['index.html', files.html],
+    ['style.css', files.css],
+    ['script.js', files.js],
+  ])
+  const r = buildDocument({ entry: 'index.html', texts, ...opts })
   return {
-    html: segs.map((s) => s.text).join(''),
-    mapLine: (docLine: number) => lineMap[docLine] ?? null,
-    linksCss: Boolean(link),
-    linksJs: Boolean(script),
+    html: r.html,
+    mapLine: (l) => {
+      const m = r.mapLine(l)
+      const key = m && labKeyFromPath(m.file)
+      return m && key ? { file: key, line: m.line } : null
+    },
+    linksCss: r.linkedCss.includes('style.css'),
+    linksJs: r.linkedJs.includes('script.js'),
   }
 }

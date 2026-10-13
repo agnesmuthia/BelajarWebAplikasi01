@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  Code2,
   Check,
   CheckCircle2,
   Download,
@@ -16,14 +17,15 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { FileExplorer } from '../components/FileExplorer'
 import { Modal } from '../components/Modal'
 import { STATUS_LABEL, STATUS_TONE } from '../components/ProjectCards'
 import { Badge, PhaseBadge, ProgressBar, ProgressRing, SectionTitle, cx } from '../components/ui'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
 import { skillById } from '../data/skills'
 import { relativeTime } from '../lib/date'
-import { downloadProjectZip } from '../lib/download'
+import { deleteProjectData } from '../workspace/db'
+import { downloadProjectFromDb } from '../workspace/exportZip'
+import { ProjectFilesTab } from '../workspace/ProjectFilesTab'
 import { projectProgress } from '../lib/progress'
 import { isGitHubRepoUrl, safeHttpUrl } from '../lib/storage'
 import { useStore } from '../lib/store'
@@ -283,7 +285,8 @@ export default function ProjectWorkspace() {
             >
               <Star className={cx('size-4', project.favorite && 'fill-amber-400 text-amber-400')} />
             </button>
-            <button className="btn-secondary" onClick={() => downloadProjectZip(project.name, tpl.files)}><Download className="size-4" /> ZIP</button>
+            <button className="btn-secondary" onClick={() => void downloadProjectFromDb(project.id, project.name)}><Download className="size-4" /> ZIP</button>
+            <Link to={`/projects/${project.id}/code`} className="btn-primary"><Code2 className="size-4" /> Buka editor</Link>
           </div>
         </div>
       </header>
@@ -305,12 +308,7 @@ export default function ProjectWorkspace() {
           </div>
           <div role="tabpanel">
             {tab === 'tasks' && <TasksTab project={project} tpl={tpl} />}
-            {tab === 'files' && (
-              <>
-                <p className="muted mb-4 text-sm">Starter files (hanya-baca). Unduh ZIP lalu kerjakan di VS Code. Mengedit file proyek langsung di DevStudio hadir di Phase 3; untuk bereksperimen dengan potongan kode, gunakan Playground di Coding Lab.</p>
-                <FileExplorer files={tpl.files} title={project.name} />
-              </>
-            )}
+            {tab === 'files' && <ProjectFilesTab projectId={project.id} templateId={project.templateId} />}
             {tab === 'notes' && <NotesTab project={project} />}
             {tab === 'publish' && <PublishTab project={project} />}
             {tab === 'history' && <HistoryTab project={project} />}
@@ -346,12 +344,13 @@ export default function ProjectWorkspace() {
       </div>
 
       <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Hapus proyek ini?">
-        <p className="muted text-sm">Progres tugas, testing, catatan, dan riwayat “{project.name}” akan dihapus dari browser ini dan tidak bisa dikembalikan. File di komputermu dan repository GitHub tidak terpengaruh.</p>
+        <p className="muted text-sm">Progres, catatan, riwayat, file proyek, dan semua checkpoint “{project.name}” akan dihapus dari browser ini dan tidak bisa dikembalikan. Unduh ZIP dulu jika ingin menyimpannya. File di komputermu dan repository GitHub tidak terpengaruh.</p>
         <div className="mt-5 flex justify-end gap-2">
           <button className="btn-secondary" onClick={() => setConfirmDelete(false)}>Batal</button>
           <button
             className="btn bg-rose-600 text-white hover:bg-rose-500"
             onClick={() => {
+              void deleteProjectData(project.id).catch(() => {})
               deleteProject(project.id)
               toast('Proyek dihapus.', 'info')
               navigate('/projects')

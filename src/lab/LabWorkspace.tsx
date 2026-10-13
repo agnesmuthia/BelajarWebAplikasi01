@@ -29,7 +29,7 @@ import { deleteDraft, loadDraft, saveDraft } from './drafts'
 import { explainError, type ErrorHint } from './errorHints'
 import { formatCode } from './format'
 import { explainCode, type GlossaryEntry } from './glossary'
-import { buildLabDocument, LAB_FILE_NAMES, LAB_SANDBOX, type BuiltDocument, type LabFileKey, type LabFiles, type MappedLine } from './runtime'
+import { buildLabDocument, labKeyFromPath, LAB_FILE_NAMES, LAB_SANDBOX, type BuiltDocument, type LabFileKey, type LabFiles, type MappedLine } from './runtime'
 
 type Level = 'log' | 'info' | 'warn' | 'error' | 'system'
 interface ConsoleEntry {
@@ -141,8 +141,8 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
           const text = String(d.text ?? 'Error').replace(/^Uncaught /, '')
           const raw = d.loc as { file?: unknown; line?: unknown } | null
           const loc =
-            raw && (raw.file === 'html' || raw.file === 'js') && typeof raw.line === 'number'
-              ? { file: raw.file as LabFileKey, line: raw.line }
+            raw && typeof raw.file === 'string' && labKeyFromPath(raw.file) && typeof raw.line === 'number'
+              ? { file: labKeyFromPath(raw.file)!, line: raw.line }
               : typeof d.line === 'number' && d.line > 0
                 ? built.current?.mapLine(d.line)
                 : null
@@ -151,6 +151,9 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
         }
         case 'resource':
           push({ level: 'warn', text: String(d.text ?? '') + ' — periksa alamat file. File lokal (mis. assets/foto.jpg) tidak tersedia di Lab; gunakan URL https.' })
+          break
+        case 'navigate':
+          push({ level: 'system', text: `Link ke “${String(d.href)}” — Coding Lab hanya punya satu halaman (index.html). Halaman tambahan bisa dibuat di Project Workspace.` })
           break
         case 'ready':
           setRunning(false)
@@ -308,7 +311,7 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
             </span>
           </div>
           <div className="code-surface min-h-0 flex-1">
-            <CodeEditor ref={editor} file={active} value={files[active]} onChange={setFile} onRun={() => run(files)} onFormat={doFormat} label={`Editor ${LAB_FILE_NAMES[active]}`} />
+            <CodeEditor ref={editor} file={active} lang={active} value={files[active]} onChange={setFile} onRun={() => run(files)} onFormat={doFormat} label={`Editor ${LAB_FILE_NAMES[active]}`} />
           </div>
           <div className="flex flex-wrap items-center gap-1.5 border-t border-slate-200 p-2 dark:border-white/10">
             <button className="btn-primary px-3 py-1.5" onClick={() => { run(files); setPane('output') }} title="Ctrl/Cmd + Enter">

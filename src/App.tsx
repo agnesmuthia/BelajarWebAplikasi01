@@ -19,6 +19,7 @@ import TemplateDetail from './pages/TemplateDetail'
 // Editor (CodeMirror) cukup besar — dimuat hanya saat halaman editor dibuka.
 const LabChallenge = lazy(() => import('./pages/lab/LabChallenge'))
 const LabPlayground = lazy(() => import('./pages/lab/LabPlayground'))
+const ProjectEditor = lazy(() => import('./pages/projects/ProjectEditor'))
 
 const loading = <p className="muted p-6 text-sm">Memuat editor…</p>
 
@@ -36,6 +37,7 @@ export function AppRoutes() {
         <Route path="projects" element={<Projects />} />
         <Route path="projects/library/:templateId" element={<TemplateDetail />} />
         <Route path="projects/:projectId" element={<ProjectWorkspace />} />
+        <Route path="projects/:projectId/code" element={<Suspense fallback={loading}><ProjectEditor /></Suspense>} />
         <Route path="skills" element={<Skills />} />
         <Route path="roadmap" element={<Roadmap />} />
         <Route path="settings" element={<Settings />} />
