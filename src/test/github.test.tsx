@@ -40,7 +40,7 @@ describe('GitHub API client', () => {
     expect(f).not.toHaveBeenCalled()
   })
 
-  it('parses and validates', () => {
+  it('parses and validates', async () => {
     expect(parseRepoUrl('https://github.com/agnes/web.git')).toEqual({ owner: 'agnes', repo: 'web' })
     expect(parseRepoUrl('https://evil.com/a/b')).toBeNull()
     expect(isGitHubUsername('agnes-muthia')).toBe(true)
@@ -54,8 +54,8 @@ describe('GitHub API client', () => {
   })
 })
 
-function renderAt(path: string) {
-  return render(
+async function renderAt(path: string) {
+  const r = render(
     <StoreProvider initial={createInitialState()}>
       <ToastProvider>
         <MemoryRouter initialEntries={[path]}>
@@ -64,17 +64,19 @@ function renderAt(path: string) {
       </ToastProvider>
     </StoreProvider>,
   )
+  await waitFor(() => expect(screen.queryByText('Memuat halaman…')).toBeNull())
+  return r
 }
 
 describe('GitHub pages', () => {
-  it('shows all four levels and eight missions', () => {
-    renderAt('/github')
+  it('shows all four levels and eight missions', async () => {
+    await renderAt('/github')
     for (const t of ['Level 1 — Fundamental', 'Level 2 — Daily Workflow', 'Level 3 — Professional Collaboration', 'Level 4 — Portfolio & Automation']) expect(screen.getByText(t)).toBeInTheDocument()
     expect(screen.getByText('Menyelesaikan Konflik')).toBeInTheDocument()
   })
 
   it('labels demo data clearly and keeps write access marked as not configured', async () => {
-    renderAt('/integrations')
+    await renderAt('/integrations')
     expect(screen.getByText('Belum dikonfigurasi')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Coba data DEMO' }))
     await waitFor(() => expect(screen.getByText('DEMO — data contoh')).toBeInTheDocument())

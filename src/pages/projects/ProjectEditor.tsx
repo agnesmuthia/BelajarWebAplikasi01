@@ -498,9 +498,9 @@ function Editor({ projectId }: { projectId: string }) {
           <p className="muted border-t border-slate-200 p-2 text-[11px] dark:border-white/10">
             {paths.length} file · {formatBytes(totalBytes)} dari 50 MB · seret file ke sini untuk impor
           </p>
-          <input ref={fileInput} type="file" multiple className="hidden" onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ''; if (f.length) void startImport(fromFiles(f), 'Dari “Pilih file”') }} />
-          <input ref={folderInput} type="file" className="hidden" {...({ webkitdirectory: '', directory: '' } as Record<string, string>)} onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ''; if (f.length) void startImport(fromFiles(f), 'Dari “Pilih folder”') }} />
-          <input ref={zipInput} type="file" accept=".zip,application/zip" className="hidden" onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ''; if (f.length) void startImport(fromFiles(f), 'Dari file ZIP') }} />
+          <input ref={fileInput} type="file" multiple className="hidden" aria-label="Pilih file untuk diimpor" tabIndex={-1} onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ''; if (f.length) void startImport(fromFiles(f), 'Dari “Pilih file”') }} />
+          <input ref={folderInput} type="file" className="hidden" aria-label="Pilih folder untuk diimpor" tabIndex={-1} {...({ webkitdirectory: '', directory: '' } as Record<string, string>)} onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ''; if (f.length) void startImport(fromFiles(f), 'Dari “Pilih folder”') }} />
+          <input ref={zipInput} type="file" accept=".zip,application/zip" className="hidden" aria-label="Pilih file ZIP untuk diimpor" tabIndex={-1} onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ''; if (f.length) void startImport(fromFiles(f), 'Dari file ZIP') }} />
         </aside>
 
         {/* Editor */}
@@ -551,7 +551,7 @@ function Editor({ projectId }: { projectId: string }) {
             ] as [RightTab, string, typeof Eye][]).map(([id, label, Icon]) => (
               <button key={id} role="tab" aria-selected={right === id} onClick={() => setRight(id)} className={cx('-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-2.5 py-1.5 text-xs font-medium', right === id ? 'border-indigo-500 text-indigo-700 dark:text-cyan-300' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white')}>
                 <Icon className="size-3.5" /> {label}
-                {id === 'console' && entries.length > 0 && <span className={cx('rounded-full px-1.5 text-[10px]', errorCount ? 'bg-rose-500 text-white' : 'bg-slate-200 dark:bg-white/10')}>{errorCount || entries.length}</span>}
+                {id === 'console' && entries.length > 0 && <span className={cx('rounded-full px-1.5 text-[10px]', errorCount ? 'bg-rose-600 text-white' : 'bg-slate-200 dark:bg-white/10')}>{errorCount || entries.length}</span>}
               </button>
             ))}
             {running && <Loader2 className="ml-auto size-3.5 shrink-0 animate-spin text-slate-400" aria-label="Menjalankan" />}

@@ -139,7 +139,7 @@ export function CloudSync() {
     <div className="space-y-4">
       <div className="card space-y-2 p-4 text-sm">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-semibold">Sinkronisasi cadangan ke Supabase</h3>
+          <h2 className="font-semibold">Sinkronisasi cadangan ke Supabase</h2>
           <Badge tone="amber">Opsional · butuh akun Supabase</Badge>
         </div>
         <p className="muted">Secara bawaan semua progres hanya ada di browser ini. Jika ingin cadangan yang bisa dipulihkan di perangkat lain, hubungkan <b>proyek Supabase milikmu sendiri</b>. DevStudio tidak punya server dan tidak pernah melihat datamu.</p>

@@ -139,7 +139,7 @@ export function SqlLab() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[230px_minmax(0,1fr)]">
-      <aside className="card h-fit p-3">
+      <aside className="card h-fit p-3" aria-label="Daftar tantangan SQL">
         <p className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">Tantangan · {passed}/{SQL_CHALLENGES.length}</p>
         <ol className="space-y-0.5">
           {SQL_CHALLENGES.map((c, i) => {
@@ -201,7 +201,7 @@ export function SqlLab() {
             </div>
           </section>
 
-          <aside className="card p-3 text-xs">
+          <aside className="card p-3 text-xs" aria-label="Struktur tabel">
             <p className="mb-2 font-semibold">Struktur tabel</p>
             {schema.length === 0 ? <p className="muted">Memuat…</p> : (
               <ul className="space-y-2 font-mono">

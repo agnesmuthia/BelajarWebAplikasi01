@@ -1,5 +1,6 @@
 import { deployLessons } from './curriculumDeploy'
 import { apiLessons, backendLessons, databaseLessons } from './curriculumFullstack'
+import { advancedLessons, qualityLessons, reactLessons } from './curriculumPolish'
 import { githubLessons } from './curriculumGithub'
 import { domLessons, jsLessons } from './curriculumJs'
 import type { SkillId } from './skills'
@@ -761,28 +762,19 @@ git log --oneline`,
   },
 ]
 
-const upcoming = (id: string, title: string, description: string, phase: number, skills: SkillId[]): Module => ({
-  id,
-  title,
-  description,
-  phase,
-  skills,
-  lessons: [],
-})
-
 export const MODULES: Module[] = [
   { id: 'html', title: 'HTML Fundamentals', description: 'Struktur halaman, teks, gambar, link, tag semantik, dan form.', phase: 1, skills: ['html', 'semantic-html', 'accessibility'], lessons: htmlLessons },
   { id: 'css', title: 'CSS and Responsive Design', description: 'Selektor, box model, Flexbox, dan media query.', phase: 1, skills: ['css', 'layout', 'responsive'], lessons: cssLessons },
   { id: 'js', title: 'JavaScript Fundamentals', description: 'Variabel, tipe data, fungsi, kondisi, array, dan perulangan.', phase: 2, skills: ['javascript'], lessons: jsLessons },
   { id: 'dom', title: 'DOM Manipulation', description: 'Memilih elemen, event listener, dan mengubah halaman secara dinamis.', phase: 2, skills: ['dom'], lessons: domLessons },
   { id: 'git', title: 'Git and GitHub', description: 'Dari commit pertama sampai Pull Request, GitHub Actions, dan keamanan secrets.', phase: 1, skills: ['git', 'github'], lessons: [...gitLessons, ...githubLessons] },
-  upcoming('react', 'React and Vite', 'Komponen, props, state, dan tooling modern.', 3, ['javascript']),
+  { id: 'react', title: 'React and Vite', description: 'Komponen, JSX, props, state, useEffect, dan build proyek Vite (dipraktikkan di komputer sendiri).', phase: 8, skills: ['react'], lessons: reactLessons },
   { id: 'api', title: 'API Integration', description: 'HTTP, JSON, status code, fetch, async/await, dan menangani loading & error.', phase: 7, skills: ['api'], lessons: apiLessons },
   { id: 'backend', title: 'Backend Fundamentals', description: 'Routing REST, serverless function, validasi di server, dan keamanan API.', phase: 7, skills: ['backend'], lessons: backendLessons },
   { id: 'database', title: 'Database and Authentication', description: 'SQL dengan SQLite di browser, relasi & JOIN, login yang aman, Supabase, dan Row Level Security.', phase: 7, skills: ['database', 'auth'], lessons: databaseLessons },
   { id: 'deploy', title: 'Deployment and Domains', description: 'Build, GitHub Pages, Netlify, Vercel, build log, DNS, HTTPS, monitoring, dan biaya.', phase: 6, skills: ['deployment'], lessons: deployLessons },
-  upcoming('quality', 'Testing, Accessibility, and Security', 'Unit test, audit aksesibilitas, dan dasar keamanan web.', 8, ['accessibility']),
-  upcoming('advanced', 'Advanced Full-Stack Development', 'Arsitektur aplikasi, performa, dan praktik profesional.', 8, []),
+  { id: 'quality', title: 'Testing, Accessibility, and Security', description: 'Audit aksesibilitas, unit test, keamanan web dasar, dan performa.', phase: 8, skills: ['accessibility', 'testing', 'security', 'performance'], lessons: qualityLessons },
+  { id: 'advanced', title: 'Advanced Full-Stack Development', description: 'Struktur proyek & alur kerja tim, portofolio & freelance, serta belajar mandiri.', phase: 8, skills: ['github', 'testing'], lessons: advancedLessons },
 ]
 
 export const ALL_LESSONS: (Lesson & { moduleId: string })[] = MODULES.flatMap((m) => m.lessons.map((l) => ({ ...l, moduleId: m.id })))

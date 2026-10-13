@@ -114,7 +114,7 @@ export default function Settings() {
         <div className="flex flex-wrap gap-2">
           <button className="btn-secondary" onClick={exportData}><Download className="size-4" /> Export backup (JSON)</button>
           <button className="btn-secondary" onClick={() => fileRef.current?.click()}><Upload className="size-4" /> Import backup</button>
-          <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={importData} />
+          <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" aria-label="Pilih file backup JSON" tabIndex={-1} onChange={importData} />
           <button className="btn-ghost text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10" onClick={() => setConfirmReset(true)}><RotateCcw className="size-4" /> Reset semua data</button>
         </div>
         <p className="muted mt-3 text-xs">{state.projects.length} proyek · {Object.values(state.lessons).filter((l) => l.passedAt).length} checkpoint lulus · {Object.values(state.challenges).filter((c) => c.passedAt).length} tantangan Lab · {state.activity.length} aktivitas tercatat</p>

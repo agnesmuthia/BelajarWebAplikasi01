@@ -77,7 +77,7 @@ export function EmptyState({ icon: Icon, title, children, action }: { icon: Luci
       <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500/15 to-cyan-400/15 text-indigo-500 dark:text-cyan-300">
         <Icon className="size-6" aria-hidden />
       </div>
-      <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
+      <h2 className="font-semibold text-slate-900 dark:text-white">{title}</h2>
       {children && <div className="muted mt-1 max-w-md text-sm">{children}</div>}
       {action && <div className="mt-4">{action}</div>}
     </div>

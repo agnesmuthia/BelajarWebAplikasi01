@@ -52,8 +52,15 @@
   @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-white/10 dark:bg-ink-850;
 }
 @utility muted {
-  @apply text-slate-500 dark:text-slate-400;
+  @apply text-slate-600 dark:text-slate-400;
 }
+/* Item terkunci: tetap terbaca (kontras WCAG AA), dibedakan dengan warna redup + garis putus-putus — bukan opacity. */
+.locked { border-style: dashed; color: var(--color-slate-500); }
+.locked * { color: inherit !important; }
+.dark .locked { color: var(--color-slate-400); }
+/* slate-500 di atas latar gelap kontrasnya < 4.5:1 — naikkan satu tingkat di mode gelap. */
+.dark .text-slate-500 { color: var(--color-slate-400); }
+:root:not(.dark) .text-slate-500 { color: var(--color-slate-600); }
 .prose-lite p { @apply mb-3 leading-relaxed; }
 .prose-lite ul { @apply mb-3 list-disc space-y-1 pl-5; }
 .prose-lite code { @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.85em] text-violet-700 dark:bg-white/10 dark:text-cyan-300; }
@@ -69,19 +76,19 @@
 
 /* Warna token syntax highlighting */
 .code-surface { @apply bg-slate-50 text-slate-800 dark:bg-ink-950 dark:text-slate-200; }
-.tok-comment { @apply text-slate-400 italic dark:text-slate-500; }
+.tok-comment { @apply text-slate-600 italic dark:text-slate-400; }
 .tok-tag { @apply text-indigo-600 dark:text-indigo-300; }
 .tok-attr { @apply text-violet-600 dark:text-violet-300; }
 .tok-string { @apply text-emerald-700 dark:text-emerald-300; }
 .tok-number { @apply text-amber-700 dark:text-amber-300; }
 .tok-keyword { @apply text-cyan-700 dark:text-cyan-300; }
 .tok-fn { @apply text-sky-700 dark:text-sky-300; }
-.tok-meta { @apply text-rose-600 dark:text-rose-300; }
+.tok-meta { @apply text-rose-700 dark:text-rose-300; }
 
 /* CodeMirror (Coding Lab) */
 .lab-editor .cm-editor { height: 100%; }
-.lab-editor .cm-gutters { background: transparent; border-right: 1px solid rgb(226 232 240); color: rgb(148 163 184); }
-.dark .lab-editor .cm-gutters { border-right-color: rgb(255 255 255 / 0.06); color: rgb(71 85 105); }
+.lab-editor .cm-gutters { background: transparent; border-right: 1px solid rgb(226 232 240); color: rgb(98 116 142); }
+.dark .lab-editor .cm-gutters { border-right-color: rgb(255 255 255 / 0.06); color: rgb(144 161 185); }
 .lab-editor .cm-activeLine { background: rgb(99 102 241 / 0.06); }
 .lab-editor .cm-activeLineGutter { background: rgb(99 102 241 / 0.08); color: rgb(79 70 229); }
 .dark .lab-editor .cm-activeLineGutter { color: rgb(165 180 252); }

@@ -124,7 +124,7 @@ describe('Mock API', () => {
 describe('kurikulum & progres Phase 7', () => {
   it('modul api/backend/database berisi pelajaran', () => {
     for (const id of ['api', 'backend', 'database']) expect(MODULES.find((m) => m.id === id)!.lessons.length).toBeGreaterThan(0)
-    expect(ALL_LESSONS.length).toBe(34)
+    expect(ALL_LESSONS.length).toBe(44)
     const ids = new Set(ALL_LESSONS.map((l) => l.id))
     expect(ids.size).toBe(ALL_LESSONS.length)
     for (const t of FULLSTACK_TEMPLATES) for (const r of [...t.requires!, ...t.recommendedLessons]) expect(ids.has(r)).toBe(true)

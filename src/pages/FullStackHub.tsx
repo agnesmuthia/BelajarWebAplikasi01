@@ -145,7 +145,7 @@ function Overview() {
                         {open ? (
                           <Link to={`/learn/${m.id}/${l.id}`} className="flex items-center gap-2 hover:underline">{isLessonPassed(state, l.id) ? <CheckCircle2 className="size-4 text-emerald-500" /> : <BookOpen className="size-4 text-violet-500" />} {l.title}</Link>
                         ) : (
-                          <span className="flex items-center gap-2 opacity-60"><Lock className="size-4" /> {l.title}</span>
+                          <span className="locked flex items-center gap-2"><Lock className="size-4" /> {l.title}</span>
                         )}
                       </li>
                     )
@@ -191,13 +191,13 @@ function Checklist() {
       <div className="grid gap-4 md:grid-cols-2">
         {CHECKLIST.map((g) => (
           <section key={g.title} className="card p-4 text-sm">
-            <h3 className="mb-2 font-semibold">{g.title}</h3>
+            <h2 className="mb-2 font-semibold">{g.title}</h2>
             <ul className="space-y-1.5">{g.items.map((i) => <li key={i} className="flex gap-2"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-slate-400" /> {i}</li>)}</ul>
           </section>
         ))}
       </div>
       <section className="card p-4 text-sm">
-        <h3 className="mb-2 font-semibold">Troubleshooting full-stack</h3>
+        <h2 className="mb-2 font-semibold">Troubleshooting full-stack</h2>
         <dl className="divide-y divide-slate-200 dark:divide-white/10">
           {TROUBLE.map(([e, f]) => <div key={e} className="grid gap-1 py-2 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"><dt className="font-mono text-xs">{e}</dt><dd className="muted">{f}</dd></div>)}
         </dl>

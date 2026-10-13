@@ -122,7 +122,7 @@ function MissionView({ m }: { m: Mission }) {
             const isDone = i < session.reached
             const isCur = i === session.reached
             return (
-              <li key={i} className={cx('rounded-xl border p-2.5 text-sm', isCur ? 'border-indigo-400 bg-indigo-500/5 dark:border-indigo-400/50' : 'border-transparent', !isCur && !isDone && 'opacity-60')}>
+              <li key={i} className={cx('rounded-xl border p-2.5 text-sm', isCur ? 'border-indigo-400 bg-indigo-500/5 dark:border-indigo-400/50' : 'border-transparent', !isCur && !isDone && 'locked')}>
                 <div className="flex items-start gap-2">
                   {isDone ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" /> : <Circle className={cx('mt-0.5 size-4 shrink-0', isCur ? 'text-indigo-500' : 'text-slate-400')} />}
                   <span className={cx(isDone && 'text-slate-500 dark:text-slate-400')}><RichText text={st.text} /></span>

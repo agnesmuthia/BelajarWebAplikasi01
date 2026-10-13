@@ -80,7 +80,7 @@ export default function GitHubCenter() {
                       {unlocked ? (
                         <Link to={`/learn/git/${id}`} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 hover:border-indigo-300 dark:border-white/10 dark:hover:border-indigo-400/40">{inner}</Link>
                       ) : (
-                        <div className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 opacity-60 dark:border-white/10" title="Lulus pelajaran sebelumnya untuk membuka">{inner}</div>
+                        <div className="flex items-center gap-3 locked rounded-xl border border-slate-300 p-3 dark:border-white/15" title="Lulus pelajaran sebelumnya untuk membuka">{inner}</div>
                       )}
                     </li>
                   )

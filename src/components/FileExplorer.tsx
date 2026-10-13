@@ -9,7 +9,7 @@ import { cx } from './ui'
 
 const PREVIEW = '__preview__'
 
-/** Daftar file (hanya-baca) + preview terisolasi. Pengeditan file proyek hadir di Phase 3. */
+/** Daftar file (hanya-baca) + preview terisolasi. Pengeditan file ada di editor proyek. */
 export function FileExplorer({ files, title }: { files: ProjectFile[]; title: string }) {
   const [active, setActive] = useState<string>(PREVIEW)
   const doc = useMemo(() => buildPreviewDocument(files), [files])

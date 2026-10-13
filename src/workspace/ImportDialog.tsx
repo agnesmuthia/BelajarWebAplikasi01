@@ -93,7 +93,7 @@ export function ImportDialog({ open, sources, origin, existing, existingBytes, f
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5">
               {rows.map((r, i) => (
-                <tr key={i} className={cx(r.status === 'skip' && 'opacity-60')}>
+                <tr key={i} className={cx(r.status === 'skip' && 'locked')}>
                   <td className="px-2 py-1.5 font-mono [overflow-wrap:anywhere]">
                     {r.target}
                     {r.renamed && <div className="muted font-sans">dari: {r.source.relPath}</div>}

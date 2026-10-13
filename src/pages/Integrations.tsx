@@ -216,7 +216,7 @@ export default function Integrations() {
           <p>
             Agar DevStudio bisa membuat repository atau push atas namamu, dibutuhkan login resmi lewat <b>GitHub App</b> (OAuth). Login ini memerlukan
             <b> server/serverless function</b> untuk menukar kode login dengan token secara aman — token tidak boleh dibuat atau disimpan di kode frontend. DevStudio saat ini
-            berjalan sepenuhnya di browser tanpa server sendiri, jadi fitur ini <b>belum aktif</b>. Phase 7 memakai Supabase <i>milikmu</i> untuk cadangan cloud (lihat <a className="underline" href="#/fullstack?tab=cloud">Full-Stack Lab</a>); akses tulis GitHub tetap butuh serverless function yang kamu deploy dan konfigurasikan sendiri, dan akan ditinjau di Phase 8.
+            berjalan sepenuhnya di browser tanpa server sendiri, jadi fitur ini <b>belum aktif</b>. Phase 7 memakai Supabase <i>milikmu</i> untuk cadangan cloud (lihat <a className="underline" href="#/fullstack?tab=cloud">Full-Stack Lab</a>); akses tulis GitHub butuh GitHub App milikmu sendiri plus serverless function untuk menukar token — keduanya memerlukan akun, rahasia, dan biaya hosting yang harus kamu kelola. Karena itu fitur ini <b>sengaja tidak diaktifkan</b>. Cara yang aman dan gratis: commit & push dari VS Code, GitHub Desktop, atau terminal (lihat <a className="underline" href="#/local">Local Workflow</a>), dengan file proyek disinkronkan lewat Folder lokal atau ZIP.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">

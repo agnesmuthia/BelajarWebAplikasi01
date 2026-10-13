@@ -276,11 +276,11 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
 
   const outTabs: { id: OutTab; label: string; icon: typeof Eye; badge?: ReactNode }[] = [
     { id: 'preview', label: 'Preview', icon: Eye },
-    { id: 'console', label: 'Console', icon: Terminal, badge: entries.length ? <span className={cx('rounded-full px-1.5 text-[10px]', errorCount ? 'bg-rose-500 text-white' : 'bg-slate-200 dark:bg-white/10')}>{errorCount || entries.length}</span> : null },
+    { id: 'console', label: 'Console', icon: Terminal, badge: entries.length ? <span className={cx('rounded-full px-1.5 text-[10px]', errorCount ? 'bg-rose-600 text-white' : 'bg-slate-200 dark:bg-white/10')}>{errorCount || entries.length}</span> : null },
     ...(challenge?.api ? [{ id: 'api' as const, label: 'API', icon: Server, badge: api.log.length ? <span className="rounded-full bg-slate-200 px-1.5 text-[10px] dark:bg-white/10">{api.log.length}</span> : null }] : []),
     ...(challenge
       ? [
-          { id: 'checks' as const, label: 'Cek', icon: ListChecks, badge: checks ? <span className={cx('rounded-full px-1.5 text-[10px] text-white', passCount === challenge.checks.length ? 'bg-emerald-500' : 'bg-amber-500')}>{passCount}/{challenge.checks.length}</span> : null },
+          { id: 'checks' as const, label: 'Cek', icon: ListChecks, badge: checks ? <span className={cx('rounded-full px-1.5 text-[10px] font-semibold', passCount === challenge.checks.length ? 'bg-emerald-700 text-white' : 'bg-amber-300 text-amber-950')}>{passCount}/{challenge.checks.length}</span> : null },
           { id: 'target' as const, label: 'Target', icon: Target },
         ]
       : []),
@@ -305,7 +305,8 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
 
         {/* Editor */}
         <section className={cx('card min-h-[60dvh] flex-col overflow-hidden lg:flex lg:min-h-0', pane === 'code' ? 'flex' : 'hidden')} aria-label="Editor kode">
-          <div className="flex items-center gap-1 border-b border-slate-200 px-2 pt-2 dark:border-white/10" role="tablist" aria-label="File">
+          <div className="flex items-center border-b border-slate-200 px-2 pt-2 dark:border-white/10">
+          <div className="flex items-center gap-1" role="tablist" aria-label="File">
             {FILES.map((f) => (
               <button
                 key={f}
@@ -317,6 +318,7 @@ export function LabWorkspace({ draftId, title, starter, challenge, sidebar, onAl
                 {LAB_FILE_NAMES[f]}
               </button>
             ))}
+          </div>
             <span className="muted ml-auto hidden pr-1 text-[11px] sm:inline" aria-live="polite">
               {saved === 'saving' ? 'Menyimpan…' : saved === 'error' ? 'Gagal menyimpan draft' : 'Draft tersimpan'}
             </span>

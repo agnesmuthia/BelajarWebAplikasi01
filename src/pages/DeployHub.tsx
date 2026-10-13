@@ -156,7 +156,7 @@ export default function DeployHub() {
                           {passed ? <CheckCircle2 className="size-4 text-emerald-500" /> : <BookOpen className="size-4 text-violet-500" />} {l.title}
                         </Link>
                       ) : (
-                        <span className="flex items-center gap-2 text-sm opacity-60"><Lock className="size-4" /> {l.title}</span>
+                        <span className="locked flex items-center gap-2 text-sm"><Lock className="size-4" /> {l.title}</span>
                       )}
                     </li>
                   )

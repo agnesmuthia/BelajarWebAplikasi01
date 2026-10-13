@@ -1,217 +1,82 @@
 # DevStudio Academy — My Web Development Laboratory
 
-Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
+Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website dan web application.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, **Phase 4 — Git & GitHub**, **Phase 5 — Local Workflow**, **Phase 6 — Deployment**, dan **Phase 7 — Full-Stack**. Fitur fase
-> berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
+Semua delapan fase roadmap sudah selesai. DevStudio berjalan sepenuhnya di browser (tanpa server
+sendiri), menyimpan data di perangkatmu, dan tidak memiliki tombol yang hanya *terlihat* berfungsi.
+Fitur yang berupa simulasi diberi label jelas.
 
 ---
 
-## Phase 7 — Full-Stack
+## Fitur
 
-| Fitur | Keterangan |
+| Area | Isi |
 |---|---|
-| **3 modul baru (8 pelajaran + kuis)** | *API Integration* (HTTP/JSON/status code, fetch + async/await + loading/error), *Backend Fundamentals* (routing, serverless function & environment variable, validasi di server), *Database and Authentication* (SELECT, CRUD/JOIN/constraint, hash password & token, Supabase + Row Level Security + backup/migrasi). |
-| **Full-Stack Lab** (`/#/fullstack`) | Ringkasan arsitektur & tabel “apa yang nyata, apa yang simulasi”, Mock API playground, SQL Lab, Supabase & Cloud, dan checklist + troubleshooting deploy full-stack. |
-| **Mock API** (simulasi) | Kode di preview memanggil `fetch('/api/...')`; DevStudio melayaninya dari `api/config.json`: REST otomatis (GET/POST/PATCH/PUT/DELETE, `?q=`, `?sort=`, `?limit=`), validasi kolom, `/api/auth/register|login|me|logout` dengan hash PBKDF2 + salt, token sesi, dan aturan akses `public`, `read-public`, `owner`, `admin-write` (meniru RLS). Tab **API** menampilkan setiap request beserta penjelasan keputusan server, isi data, dan simulasi jaringan lambat/error 500/offline. |
-| **SQL Lab** (nyata) | SQLite asli (sql.js/WebAssembly, dimuat hanya saat dibuka) dengan data sekolah **fiktif**, 10 tantangan terperiksa otomatis (SELECT → CREATE TABLE), mode bebas, struktur tabel, dan penjelasan error SQLite dalam bahasa Indonesia. Lulus tanpa melihat solusi = bukti skill *Database*. |
-| **2 tantangan Coding Lab baru** | “Daftar dari API” dan “Form kirim ke API” — termasuk pemeriksaan saat server mengembalikan 500 dan pemeriksaan XSS. |
-| **2 proyek full-stack** | *Aplikasi CRUD Inventaris* (terbuka setelah checkpoint `api-2`) dan *Aplikasi Login & Catatan Pribadi* (setelah `db-3`). README masing-masing menjelaskan endpoint dan cara pindah ke Supabase. |
-| **Sinkronisasi cloud (opsional)** | Cadangkan/pulihkan progres ke **proyek Supabase milikmu sendiri** lewat REST API resmi. SQL penyiapan menyalakan RLS, policy “milik sendiri”, dan `GRANT` hanya ke `authenticated`. |
-| **Siap deploy?** | Peringatan baru jika proyek masih bergantung pada Mock API (`/api/...` akan 404 setelah online). Level 4 Deploy hub kini terbuka. |
-| **Skill baru** | Integrasi API, Dasar Backend, Database & SQL, Autentikasi & Otorisasi. |
+| **Dashboard & Skill Tracker** | Target harian, progres, aktivitas 7 hari, tugas berikutnya. Skill dinilai dari **bukti** (checkpoint, tugas proyek, tantangan), bukan jumlah materi yang dibaca. |
+| **Learning Path** | 12 modul, **44 pelajaran**: HTML, CSS, JavaScript, DOM, Git & GitHub, React & Vite, API, Backend, Database & Auth, Deployment, Testing/Aksesibilitas/Keamanan/Performa, Advanced. Setiap pelajaran: konsep, contoh, langkah praktik, tantangan, petunjuk bertahap, error umum, kuis checkpoint. |
+| **Coding Lab** | Editor CodeMirror, preview terisolasi, console + penjelasan error, Format (Prettier), Explain, 12 tantangan terperiksa otomatis (termasuk debugging & API), playground. |
+| **Project Workspace** | 5 template proyek (3 dasar + 2 full-stack yang terbuka setelah checkpoint), proyek bebas, editor multi-file, impor file/folder/ZIP, checkpoint dengan diff, pemeriksaan otomatis, ekspor ZIP, sinkron folder lokal (Chrome/Edge). |
+| **Git & GitHub** | Simulator terminal Git dengan 8 misi, GitHub Learning Center level 1–4, data GitHub publik (tanpa token) dengan mode DEMO berlabel. |
+| **Local Workflow** | Pemeriksa kesiapan komputer, panduan VS Code/terminal/dev server/Claude Code. |
+| **Deployment Academy** | 6 pelajaran, perbandingan GitHub Pages/Netlify/Vercel **bertanggal & bersumber**, “Siap deploy?”, generator konfigurasi, analisis build log, pembuat record DNS. |
+| **Full-Stack Lab** | Mock API di preview (REST, validasi, login dengan hash, aturan akses per baris), **SQL Lab** dengan SQLite asli, cadangan opsional ke Supabase milikmu (RLS), checklist deploy full-stack. |
+| **Mentor lokal** | Review kode (keamanan, aksesibilitas, kualitas, performa), penjelasan error & istilah, pesan commit, README, kerangka unit test — **berbasis aturan, bukan AI**. |
 
-**Keamanan & kejujuran.**
-- Mock API **bukan** server online: berjalan di halaman DevStudio, datanya di localStorage browser ini (batas ±400 KB). Akun latihan jangan memakai password asli.
-- Cloud sync hanya menerima **publishable key** (`sb_publishable_…`) atau anon key lama. **Secret key / service_role ditolak** karena melewati RLS. Token sesi disimpan di sessionStorage (hilang saat tab ditutup); password tidak disimpan. File proyek di IndexedDB **tidak** ikut dicadangkan — tetap gunakan ZIP.
-- Sebelum memulihkan dari cloud, DevStudio mengunduh salinan progres saat ini.
-- Tidak ada tombol AI: AI Coding Mentor butuh backend dengan API key berbayar; polanya diajarkan di pelajaran *Backend* (serverless function + environment variable).
-
-**Data Supabase yang dipakai (dicek 13 Oktober 2026):** penamaan kunci publishable/secret dan perubahan Data API (tabel baru perlu `GRANT` eksplisit) dari dokumentasi & changelog resmi Supabase; batas paket gratis dari ringkasan pihak ketiga — **cek halaman harga resmi**.
-
-**Cara menguji Phase 7:**
-1. Buka **Full-Stack** di menu → tab *Mock API* → *Kirim request*: klik “daftar”, kirim, lalu `GET /api/todos` dengan dan tanpa token (200 vs 401).
-2. Tab *SQL Lab*: kerjakan tantangan 1, lalu coba `SELECT * FROM murid` untuk melihat penjelasan error.
-3. **Coding Lab** → “Daftar dari API”: kerjakan, buka tab *API*, ubah simulasi ke “Server error (500)” lalu Run.
-4. Lulus checkpoint `api-2` → **Projects → Library → Aplikasi CRUD Inventaris** → buka editor; tambah barang di preview dan lihat tab *API*.
-5. (Opsional, butuh akun Supabase) tab *Supabase & Cloud*: ikuti langkah penyiapan, lalu uji dua akun berbeda.
-6. `npm test` (119 test) dan `npm run build`.
-
-## Phase 6 — Deployment
-
-| Fitur | Keterangan |
-|---|---|
-| **Deployment Academy** (modul “Deploy”, 6 pelajaran + kuis) | Localhost & build → GitHub Pages → Netlify & Vercel → membaca build log → domain, DNS & HTTPS (termasuk `.sch.id` lewat PANDI dengan dokumen sekolah) → monitoring, backup, biaya & migrasi gratis → berbayar. |
-| **Deploy hub** (`/#/deploy`) | 5 level (Level 4 full-stack dikunci sampai Phase 7), kartu platform dengan **tanggal pengecekan**, pemilih platform (jenis situs, komersial?, repo privat?, butuh preview?), analisis build log, pembuat record DNS, dan daftar situs yang sudah online. |
-| **Siap deploy?** | Di tab Publikasi proyek: cek `index.html`, rahasia/API key/`.env`, huruf besar-kecil path, file hilang, path absolut `/`, sumber `http://`, nama file dengan spasi/huruf besar, gambar > 1 MB, dan teks placeholder. |
-| **File konfigurasi** | Tombol menambahkan `.github/workflows/deploy-pages.yml` (GitHub Actions → Pages) atau `netlify.toml` ke proyek, dengan pratinjau dan checkpoint otomatis bila menimpa. DevStudio **tidak** melakukan push atau deploy — kamu yang commit & push. |
-| **Analisis build log** | Tempel log; DevStudio menandai baris error pertama dan mengenali 13 pola umum (lockfile, versi Node, modul hilang, error TypeScript, folder publish salah, env var, kehabisan memori, izin Pages, ERESOLVE, 404 SPA, dll.). |
-
-**Tentang data biaya & batas.** Angka platform dicek **13 Oktober 2026** dan ditampilkan dengan label
-“bisa berubah” serta tautan ke halaman resmi. Batas GitHub Pages berasal dari dokumentasi resmi GitHub.
-Angka Netlify (sistem kredit) dan Vercel (Hobby hanya non-komersial) berasal dari ringkasan pihak ketiga
-karena halaman resminya tidak bisa diakses dari lingkungan pengembangan — **verifikasi di halaman harga
-resmi sebelum memilih**. Tidak ada janji bahwa semua fitur selalu gratis; risiko vendor lock-in dijelaskan.
-
-**CI & deploy DevStudio sendiri.**
-- `.github/workflows/ci.yml` — menjalankan `npm ci`, test, dan build pada push/PR (hanya izin baca).
-- `.github/workflows/deploy-pages.yml` — **manual saja** (`workflow_dispatch`). Untuk mengaktifkan:
-  GitHub → **Settings → Pages → Source: GitHub Actions**, lalu **Actions → Deploy DevStudio to GitHub Pages → Run workflow**.
-  Aplikasi memakai `base: './'` dan HashRouter, jadi berjalan di subpath `https://<user>.github.io/<repo>/`.
-
-**Cara menguji Phase 6:** buka **Deploy** di menu → coba pemilih platform → tempel contoh log → isi domain
-di pembuat DNS. Buka sebuah proyek → tab **Publikasi** → lihat “Siap deploy?”, tambahkan `netlify.toml`,
-lalu cek file itu muncul di editor proyek. Jalankan `npm test` dan `npm run build`.
-
-## Phase 5 — Local Workflow
-
-| Fitur | Keterangan |
-|---|---|
-| **Halaman Local Workflow** (`/#/local`) | 8 langkah: cek kesiapan komputer, VS Code, terminal VS Code, development server statis (Live Server / `npx serve`), proyek npm & Vite, folder lokal ↔ DevStudio, folder lokal ↔ GitHub, dan Claude Code. Setiap perintah menjelaskan **di mana dijalankan**, **hasil yang diharapkan**, dan **error umum beserta solusinya**. |
-| **Pemeriksa kesiapan** | Tempel output `git --version`, `node -v`, `npm -v`, `code --version` dari terminalmu; DevStudio menilai versinya (mis. Node ≥ 20.19 untuk Vite) dan mengenali pesan “not recognized / command not found”. DevStudio tidak menjalankan perintah apa pun di komputermu. |
-| **Folder lokal ↔ proyek** | Di editor proyek, tab **Folder lokal** (Chrome/Edge desktop, File System Access API): pilih folder lewat dialog browser → **Bandingkan** (teks dibandingkan langsung, gambar lewat SHA-256) → **Ambil dari folder** (lewat pratinjau impor + checkpoint otomatis) atau **Simpan ke folder** (daftar file baru/ditimpa + konfirmasi). Tautan folder diingat per proyek; izin diminta ulang tiap sesi. |
-| **Claude Code** | Apa itu, cara memulai di folder proyek, biaya (butuh akun berbayar/API), kebiasaan aman (commit dulu, baca diff, jangan tempel rahasia), contoh permintaan yang menjaga proses belajar, dan contoh `CLAUDE.md`. |
-
-**Keamanan folder lokal:** hanya folder yang dipilih pengguna; `node_modules` dan folder tersembunyi (`.git`)
-dilewati (kecuali file konfigurasi umum seperti `.gitignore`, `.github/`, `.nojekyll`); path divalidasi (tanpa `..`); DevStudio **tidak pernah menghapus** file di komputer. Browser lain
-(Firefox, Safari, ponsel) tetap bisa memakai Impor folder/ZIP dan unduhan ZIP.
-
-## Phase 4 — Git & GitHub
-
-| Fitur | Keterangan |
-|---|---|
-| **Simulator Git** | Terminal di browser yang meniru Git: `init, status, add, restore, commit, log, diff, branch, switch/checkout, merge` (termasuk **konflik**), `remote, push, pull, fetch, clone`, plus `pwd, ls, cd, mkdir, touch, echo >, cat, rm`. Pesan error mirip Git asli + **penjelasan berbahasa Indonesia** untuk setiap perintah. Riwayat ↑/↓, Tab untuk melengkapi. |
-| **Panel inspeksi** | Diagram 4 area (working directory → staging → repository lokal → remote) yang berubah langsung, editor file, riwayat commit dengan label branch, dan isi “GitHub” simulasi. |
-| **8 misi Level 1–2** | Terminal, identitas & `git init`, commit pertama, siklus harian & `.gitignore`, branch & merge, menyelesaikan konflik, remote/push/pull (dengan simulasi rekan tim & push yang ditolak), clone & kontribusi. Setiap langkah diperiksa otomatis dan diakhiri catatan “di komputer sungguhan”. |
-| **Level 3–4** | 6 pelajaran + kuis: Pull Request/review/fork, Issues/labels/milestones/Projects, branch protection/release/GitHub Actions CI, profil & README portofolio, hosting & deploy otomatis, secrets & Actions yang aman. |
-| **Integrations** | Data **publik** GitHub sungguhan tanpa login & tanpa token: profil, repository, branch, commit terbaru, status GitHub Actions; hubungkan repository ke proyek. Mode **DEMO** berlabel jelas. Aktivitas publik tampil di Dashboard. |
-| **Akses tulis** | *Belum aktif — dengan jujur.* Butuh GitHub App + server untuk menukar token secara aman; halaman Integrations berisi rencana izin minimum dan panduan aktivasi. Sementara itu, tab Repo & Deploy menampilkan perintah push yang sudah terisi alamat repository. |
-| **GitHub Mode** | *Continue Learning* membuka misi Git berikutnya dan petunjuk perintah langsung terlihat. |
-
-**Catatan:** simulator adalah model belajar, bukan Git sungguhan (tidak ada rebase, stash, atau
-reset). GitHub API tanpa login dibatasi ±60 permintaan/jam per IP; respons di-cache 5 menit.
-
-## Phase 3 — Project Workspace
-
-Buka proyek → **Buka editor** (`/#/projects/<id>/code`).
-
-| Fitur | Keterangan |
-|---|---|
-| **Editor multi-file** | Pohon folder, banyak tab, CodeMirror untuk HTML/CSS/JS/JSON/Markdown, simpan otomatis, Format. |
-| **Operasi file** | File baru, folder baru (dengan `.gitkeep`), ubah nama/pindahkan file atau folder, hapus — semua dengan validasi path. |
-| **Impor dari komputer** | *Pilih file*, *Pilih folder*, *ZIP*, atau **drag & drop** (termasuk folder). Pratinjau sebelum disimpan: lokasi tujuan, file yang akan **ditimpa** (bisa dibatalkan per file), file yang dilewati beserta alasannya, dan opsi merapikan nama file. |
-| **Penampil aset** | Pratinjau gambar/audio/video, ukuran & dimensi, peringatan gambar terlalu besar, dan **cara menulis path relatif dari setiap file HTML/CSS** di proyek. |
-| **Preview multi-halaman** | Gambar, font, dan `url()` di CSS dari proyek ikut tampil; link ke halaman lain (`kontak.html`) berpindah halaman di preview; rujukan ke file yang tidak ada dilaporkan di Console. |
-| **Pemeriksaan otomatis** | Atribut `alt`, `lang`, `<title>`, meta viewport, satu `<h1>`, urutan heading, label input, link kosong, placeholder `[GANTI]`, dan file lokal yang hilang. |
-| **Checkpoint** | “Foto” seluruh proyek, mirip commit: status perubahan (seperti `git status`), **diff baris per baris**, dan pulihkan. Checkpoint otomatis dibuat saat proyek pertama dibuka, sebelum menghapus, sebelum impor yang menimpa, dan sebelum memulihkan. |
-| **Proyek sendiri** | *Project Library → Proyek kosong* atau *Impor dari komputer* (folder/ZIP). |
-| **ZIP** | Unduh seluruh proyek (teks + gambar) dan impor kembali kapan saja. |
-
-**Penyimpanan:** file proyek disimpan di **IndexedDB** browser (maks. 5 MB per file, 50 MB per proyek).
-Isi file biner disimpan sekali per hash SHA-256 — konsep yang sama dengan objek Git. File asli di
-komputer tidak pernah diubah. File proyek **tidak** ikut dalam backup JSON; gunakan tombol ZIP.
-
-**Batasan yang jujur:** checkpoint adalah latihan konsep commit, *bukan* Git sungguhan (Git & GitHub di
-Phase 4). Preview tetap hanya HTML/CSS/JS biasa; aset yang dimuat lewat JavaScript (mis. `new Image()`
-dengan path relatif) dan `@import` CSS belum diterjemahkan.
-
-## Phase 2 — Coding Lab
-
-| Fitur | Keterangan |
-|---|---|
-| **Editor** | CodeMirror 6 untuk `index.html`, `style.css`, `script.js`: syntax highlighting, nomor baris, indentasi, autocomplete, pencarian (Ctrl+F), undo per file. |
-| **Run / Reset / Format** | Run (Ctrl/⌘+Enter) atau *Auto-run*; Reset ke kode awal (dengan konfirmasi); Format memakai Prettier yang baru dimuat saat dibutuhkan. |
-| **Live preview** | iframe terisolasi, berdampingan dengan editor di desktop; tab Instruksi/Kode/Hasil di ponsel. |
-| **Console & error** | `console.log/info/warn/error`, error JavaScript dengan **file:baris yang bisa diklik** dan **penjelasan untuk pemula** berdasarkan pesan error sebenarnya. `alert/confirm/prompt` ditampilkan di Console. |
-| **Pelindung infinite loop** | Loop yang berjalan > 1 detik dihentikan dengan pesan yang menunjuk ke baris loop-nya. |
-| **10 tantangan** | 6 latihan + 4 debugging, masing-masing dengan brief, langkah, petunjuk bertahap, **pemeriksa otomatis**, dan solusi + penjelasan perubahan. |
-| **Diharapkan vs aktual** | Tab *Cek* menampilkan nilai yang diharapkan dan nilai aktual untuk setiap pemeriksaan; tab *Target* menampilkan hasil akhir yang diharapkan. |
-| **Explain This Code** | Menjelaskan baris/seleksi dari **glosarium lokal** (±120 istilah HTML, CSS, JS, DOM) — bukan AI, dan dinyatakan jelas di UI. |
-| **Draft otomatis** | Kode tersimpan otomatis per tantangan/template dan ikut dalam Export backup. |
-| **Unduh** | ZIP berisi `index.html`, `style.css`, `script.js` yang siap dibuka di VS Code. |
-| **Playground** | 3 template bebas, plus tombol **Coba di Lab** pada contoh kode pelajaran JS/DOM. |
-| **Materi baru** | Modul *JavaScript Fundamentals* (3 pelajaran) dan *DOM Manipulation* (2 pelajaran). |
-| **Mode** | *Build Mode* menampilkan Playground lebih dulu; *Debug Mode* langsung memfilter tantangan debugging. |
-
-**Integritas progres:** tantangan yang lulus *setelah* membuka solusi ditandai “dibantu solusi”
-dan tidak dihitung di Skill Tracker. Skill baru “Dikuasai” jika ada bukti dari proyek nyata.
-
-**Batasan yang jujur:** Lab hanya menjalankan HTML/CSS/JavaScript biasa. npm, React, `import`
-modul, file lokal (mis. `assets/foto.jpg`), dan `fetch` ke internet tidak didukung di preview —
-untuk itu gunakan lingkungan lokal (VS Code + `npm run dev`). Loop tanpa kurung kurawal
-(`while (x) i++;`) tidak dilindungi.
-
-## Apa yang sudah berfungsi (Phase 1)
-
-| Fitur | Keterangan |
-|---|---|
-| **Dashboard** | Sapaan, target harian, progres, proyek aktif/selesai, skill, grafik aktivitas 7 hari, tugas berikutnya, riwayat. Semua dihitung dari data nyata di browser. |
-| **Learning Path** | 12 modul. Materi lengkap: HTML (4 pelajaran), CSS (3), Git (2). Setiap pelajaran: tujuan, konsep, contoh kode + preview terisolasi, langkah praktik, tantangan, petunjuk bertahap, error umum, kuis checkpoint, dan GitHub checkpoint. Pelajaran berikutnya terbuka setelah checkpoint lulus. |
-| **Mode belajar** | *Guided* (petunjuk bisa dibuka kapan saja) dan *Practice* (petunjuk terkunci sampai kamu mencoba kuis). Mode lain terkunci sampai fasenya. |
-| **Project Library** | 3 proyek pertama — Website Profil Sekolah, Website Wisata Takalar, Portfolio Developer — dengan brief, tujuan, kebutuhan, tugas, checklist testing, rubrik, dan starter files. 43 proyek lanjutan ditampilkan terkunci. |
-| **Project Workspace** | Daftar tugas & testing, file viewer + live preview, catatan (simpan otomatis), link repository GitHub & URL deployment (divalidasi), status, favorit, riwayat, unduh ZIP. |
-| **Skill Tracker** | Level dari **bukti**: checkpoint lulus + tugas proyek selesai — bukan jumlah materi yang dibaca. |
-| **Pengaturan** | Nama, tema gelap/terang, target harian, mode belajar, export/import backup JSON, reset data. |
-
-**Belum ada (sengaja):** editor kode di aplikasi (Phase 2), integrasi GitHub OAuth (Phase 4),
-deployment otomatis (Phase 6), AI mentor & database (Phase 7). Lihat halaman **Roadmap**.
+Rincian per fase: [docs/PHASES.md](docs/PHASES.md) · Checklist uji manual: [docs/MANUAL-TESTING.md](docs/MANUAL-TESTING.md) · Model keamanan: [SECURITY.md](SECURITY.md)
 
 ---
 
-## Arsitektur MVP
+## Phase 8 — Polish (ringkasan)
+
+| Area | Hasil |
+|---|---|
+| **Aksesibilitas** | Audit axe-core (WCAG 2.1 AA + best practice) di 35 halaman, mode gelap & terang: dari 6 jenis pelanggaran (kontras teks, region scroll tanpa akses keyboard, struktur ARIA tablist, heading) menjadi **0**. Item terkunci kini terbaca (tanpa opacity). 23 tes axe ditambahkan ke `npm test` agar tidak mundur. |
+| **Keamanan** | Content-Security-Policy untuk build produksi (diuji: 0 pelanggaran di semua fitur), `SECURITY.md`, input file berlabel, `npm audit`: 0 kerentanan. Akses tulis GitHub & mentor AI diputuskan **tidak diaktifkan** (butuh server & rahasia). |
+| **Performa** | Setiap halaman dimuat terpisah (code splitting). Unduhan JavaScript awal turun dari ±846 KB (269 KB gzip) menjadi ±613 KB (±197 KB gzip) — sudah termasuk 10 pelajaran baru; editor, Prettier, dan SQLite hanya dimuat saat dipakai. |
+| **Konten** | 10 pelajaran baru: React & Vite (3), Testing/Aksesibilitas/Keamanan/Performa (4), Advanced (3). Semua 12 modul kini berisi materi. 4 skill baru. |
+| **Mentor lokal** | Halaman `/#/mentor` (lihat tabel Fitur). |
+| **Dokumentasi** | README disusun ulang; detail fase & checklist manual dipindah ke `docs/`. |
+
+**Cara menguji Phase 8:**
+1. `npm test` (semua tes termasuk audit aksesibilitas) dan `npm run build`.
+2. Buka **Mentor** → pilih salah satu proyekmu → baca temuan review. Tab *Pesan commit* → pilih proyek yang sudah punya checkpoint, lalu ubah sebuah file dan lihat sarannya.
+3. Tekan **Tab** berulang dari awal halaman: “Lewati ke konten utama” muncul, fokus selalu terlihat.
+4. Ganti tema terang/gelap dan periksa teks redup (mis. pelajaran terkunci) tetap terbaca.
+5. `npm run build && npm run preview`, buka DevTools → Network: halaman lain dimuat sebagai file terpisah saat dibuka.
+
+---
+
+## Arsitektur
 
 ```
 Browser
- └─ React SPA (Vite + TypeScript + Tailwind CSS)
-     ├─ HashRouter            → alamat /#/... agar jalan di hosting statis tanpa konfigurasi
-     ├─ StoreProvider         → state aplikasi + simpan otomatis ke localStorage
-     │    └─ sanitizeState()  → validasi semua data dari localStorage / file backup
-     ├─ data/                 → kurikulum, tantangan, template proyek, skill (konten statis)
-     ├─ lab/                  → Coding Lab: editor, runtime preview, pemeriksa, glosarium
-     ├─ workspace/            → file proyek di IndexedDB (files · blobs · snapshots)
-     │    └─ runtime.ts       → gabungkan 3 file → 1 dokumen + peta baris + skrip runtime
-     └─ iframe sandbox        → preview kode yang terisolasi (lihat Keamanan)
-          └─ postMessage      → console, error, dan hasil pemeriksaan dikirim ke aplikasi
+ └─ React SPA (Vite + TypeScript + Tailwind CSS), HashRouter (/#/…) → jalan di hosting statis
+     ├─ StoreProvider → state + simpan otomatis ke localStorage (divalidasi sanitizeState)
+     ├─ IndexedDB     → file proyek, gambar (SHA-256), checkpoint, izin folder lokal
+     ├─ iframe sandbox (tanpa allow-same-origin) → preview kode pengguna
+     │    └─ postMessage + token → console, error, hasil cek, request Mock API
+     ├─ sql.js (WebAssembly)     → SQL Lab, dimuat saat dibuka
+     └─ fetch → api.github.com (publik) · *.supabase.co (opsional, milik pengguna)
 ```
 
-Tidak ada backend dan tidak ada secrets. Semua data tetap di browser pengguna.
-
-### Struktur folder
-
 ```
-├── index.html               # Halaman HTML utama (memuat src/main.tsx)
-├── public/favicon.svg
-├── src/
-│   ├── main.tsx             # Titik masuk React
-│   ├── App.tsx              # Daftar route
-│   ├── index.css            # Tailwind + token warna (charcoal, indigo, violet, cyan)
-│   ├── components/          # Komponen UI reusable (Layout, CodeBlock, Modal, dll.)
-│   ├── pages/               # Satu file per halaman
-│   ├── data/                # curriculum*.ts, challenges.ts, projects.ts, skills.ts, modes.ts
-│   ├── lab/                 # CodeEditor, LabWorkspace, runtime, loopProtect, glossary, errorHints
-│   ├── workspace/           # IndexedDB, impor, pohon file, checkpoint & diff, audit
-│   ├── git/                 # Simulator Git, terminal, panel inspeksi
-│   ├── github/              # Klien GitHub REST (baca publik), data DEMO, detail repo
-│   ├── lib/                 # store, storage, progress, preview, highlight, download
-│   └── test/                # Unit & component test (Vitest + Testing Library)
-├── vite.config.ts
-└── tsconfig.json
+src/
+├── App.tsx, main.tsx, index.css
+├── components/   UI reusable (Layout, CodeBlock, Modal, kartu proyek)
+├── pages/        satu file per halaman (dimuat lazy)
+├── data/         kurikulum, tantangan, template proyek, skill, mode
+├── lab/          editor, runtime preview, pelindung loop, glosarium, penjelasan error
+├── workspace/    IndexedDB, impor, pohon file, checkpoint & diff, audit, folder lokal
+├── git/ github/  simulator Git & klien GitHub publik
+├── deploy/       data hosting, “Siap deploy?”, build log, konfigurasi
+├── fullstack/    Mock API, SQL Lab, sinkronisasi Supabase
+├── mentor/       review kode & pembantu commit/README/tes
+├── lib/          store, storage, progres, unduhan
+└── test/         Vitest + Testing Library + axe-core
+docs/             riwayat fase & checklist uji manual
+.github/workflows ci.yml (test + build) · deploy-pages.yml (manual)
 ```
-
-### Keamanan
-
-- Preview kode berjalan di `<iframe sandbox="allow-scripts allow-forms">` **tanpa** `allow-same-origin`,
-  sehingga kode di dalamnya tidak bisa membaca localStorage, cookie, atau DOM aplikasi.
-- Setiap dokumen preview diberi Content-Security-Policy `default-src 'none'`: `fetch`/XHR/WebSocket
-  diblokir dan form tidak bisa dikirim ke mana pun. Coding Lab hanya mengizinkan gambar/media dari
-  `https:` dan font dari Google Fonts.
-- Aplikasi hanya menerima pesan dari iframe jika `event.source` adalah iframe preview yang aktif
-  **dan** token acak run saat itu cocok. Output console dibatasi agar tidak membanjiri aplikasi.
-- Data dari localStorage dan file backup divalidasi (`sanitizeState`) sebelum dipakai; file
-  backup dibatasi 2 MB.
-- URL yang disimpan pengguna hanya diterima jika `http(s)`; link repository harus `https://github.com/user/repo`.
-- Tidak ada API key, token, atau password di source code.
 
 ---
 
@@ -246,7 +111,7 @@ diperbarui otomatis. Hentikan server dengan **Ctrl + C**.
 | Perintah | Fungsi |
 |---|---|
 | `npm run dev` | Server pengembangan dengan hot reload |
-| `npm test` | Menjalankan semua test |
+| `npm test` | Menjalankan semua test (unit, komponen, dan audit aksesibilitas) |
 | `npm run typecheck` | Memeriksa tipe TypeScript |
 | `npm run build` | Membuat versi produksi di folder `dist/` |
 | `npm run preview` | Membuka hasil build di `http://localhost:4173/` |
@@ -262,66 +127,11 @@ diperbarui otomatis. Hentikan server dengan **Ctrl + C**.
 
 ---
 
-## Cara menguji Phase 1
+## Menerbitkan DevStudio sendiri (GitHub Pages)
 
-Otomatis:
-
-```bash
-npm test          # 71 test: …, simulator Git & misi, GitHub API, folder lokal, pemeriksa versi
-npm run build     # memastikan TypeScript & build produksi lolos
-```
-
-Manual (checklist):
-
-1. Dashboard menampilkan form nama → isi nama, sapaan berubah.
-2. **Continue Learning** → kerjakan kuis *Struktur Dasar Dokumen HTML*. Jawab salah dulu: muncul
-   penjelasan dan skor. Jawab benar semua: badge **Lulus**, pelajaran 2 terbuka.
-3. Buka pelajaran 3 lewat alamat langsung (`/#/learn/html/html-3`) → harus terkunci.
-4. **Projects → Project Library → Website Profil Sekolah → Mulai proyek ini.** Centang dua tugas;
-   progres dan **Skill Tracker** ikut berubah.
-5. Tab **File** → Live preview tampil; tombol **ZIP** mengunduh starter files.
-6. Tab **Repo & Deploy** → isi `javascript:alert(1)` → ditolak. Status *Dipublikasikan* ditolak
-   sebelum URL website diisi.
-7. Muat ulang halaman → semua progres tetap ada.
-8. Tombol matahari/bulan → tema terang/gelap. Perkecil jendela ke ukuran ponsel → menu menjadi
-   tombol ☰, tidak ada scroll horizontal.
-9. **Pengaturan → Export backup**, lalu **Reset**, lalu **Import backup** → data kembali.
-
-Manual Coding Lab:
-
-1. **Coding Lab → Tombol yang Tidak Bereaksi.** Tab Console menampilkan `TypeError` dengan penjelasan;
-   klik `script.js:4` → kursor melompat ke baris itu.
-2. Perbaiki satu bug, Run lagi, lihat tab **Cek** berubah (diharapkan vs aktual).
-3. Di Playground, tulis `while (true) {}` di script.js → loop dihentikan setelah ±1 detik dan halaman tetap responsif.
-4. Klik **Format** pada kode yang berantakan; klik **Explain** pada sebuah baris.
-5. Muat ulang halaman → kode masih ada (draft). **Reset** → kembali ke kode awal.
-6. Buka semua petunjuk → **Lihat solusi** → *Terapkan ke editor* → semua cek hijau, badge “dibantu solusi”.
-
-Manual Project Workspace:
-
-1. *Projects → Project Library → Impor dari komputer* → **Pilih folder** berisi website lama (atau seret folder/ZIP ke halaman).
-   Periksa pratinjau impor: file yang akan ditimpa, nama yang dirapikan, file yang dilewati.
-2. Klik sebuah gambar di pohon file → lihat ukuran dan cara menulis path dari `index.html` dan `css/style.css`.
-3. Di Preview, klik link ke halaman lain → preview pindah halaman. Rujukan ke gambar yang tidak ada muncul di Console.
-4. Tab **Pemeriksaan** → perbaiki temuan (mis. tambahkan `alt`).
-5. Tab **Checkpoint** → simpan “Impor proyek awal”, ubah sesuatu, **Lihat perubahan**, lalu **Pulihkan**.
-6. Muat ulang browser → file dan perubahan tetap ada. Unduh **ZIP** dan buka di VS Code.
-
-Manual Git & GitHub:
-
-1. **GitHub Center → Commit Pertama**: ikuti langkah; perhatikan diagram 4 area berubah setelah `git add` dan `git commit`.
-2. **Menyelesaikan Konflik**: `git merge tema-biru` → buka tab File → hapus penanda → `git add` → `git commit`.
-3. **Remote, Push & Pull**: tekan tombol simulasi rekan tim, lalu lihat `git push` ditolak dan selesaikan dengan `git pull`.
-4. **Integrations**: masukkan username GitHub-mu → buka sebuah repository → hubungkan ke proyek → buka proyek → tab Repo & Deploy.
-5. Coba **DEMO** tanpa username; pastikan label DEMO terlihat.
-
-Manual Local Workflow (Chrome/Edge desktop):
-
-1. **Local Workflow → Cek kesiapan**: tempel output keempat perintah dari terminalmu.
-2. Buat folder kosong di komputer (mis. `Documents/website-sekolah`). Di editor proyek → tab **Folder lokal** → **Pilih folder…** → izinkan.
-3. **Simpan ke folder** → buka folder itu di VS Code dan jalankan dengan Live Server.
-4. Ubah satu file di VS Code dan simpan → kembali ke DevStudio → **Bandingkan lagi** → **Ambil dari folder**.
-5. Di folder itu, jalankan `git init`, `git add .`, `git commit -m "Initial commit"` dan hubungkan ke GitHub.
+Workflow `.github/workflows/deploy-pages.yml` **hanya berjalan manual**. Sekali saja:
+GitHub → **Settings → Pages → Source: GitHub Actions**, lalu **Actions → Deploy DevStudio to GitHub Pages → Run workflow**.
+Aplikasi memakai `base: './'` dan HashRouter sehingga berjalan di `https://<user>.github.io/<repo>/`.
 
 ---
 
@@ -338,7 +148,7 @@ git config --global user.email "email-github-kamu@example.com"
 # Di dalam folder proyek
 git status                      # file apa saja yang berubah?
 git add .                       # masukkan semua perubahan ke staging
-git commit -m "Add Phase 1 foundation"
+git commit -m "feat: tambah halaman kontak"
 git log --oneline               # pastikan commit tercatat
 ```
 

@@ -45,7 +45,7 @@ export default function ModulePage() {
               {unlocked ? (
                 <Link to={`/learn/${module.id}/${l.id}`} className="card card-hover flex items-center gap-4 p-4">{inner}</Link>
               ) : (
-                <div className="card flex items-center gap-4 p-4 opacity-60" aria-disabled="true" title="Lulus checkpoint pelajaran sebelumnya untuk membuka">
+                <div className="card locked flex items-center gap-4 p-4" aria-disabled="true" title="Lulus checkpoint pelajaran sebelumnya untuk membuka">
                   {inner}
                 </div>
               )}
