@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Token warna: charcoal, indigo, violet, aksen cyan. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-ink-950: #0b0d12;
+  --color-ink-900: #11141b;
+  --color-ink-850: #161a23;
+  --color-ink-800: #1c212c;
+  --color-ink-700: #2a3040;
+  --color-ink-600: #3b4256;
+}
+
+@layer base {
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased dark:bg-ink-950 dark:text-slate-200;
+    font-feature-settings: "cv11", "ss01";
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-cyan-400;
+  }
+}
+
+@utility card {
+  @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/[0.06] dark:bg-ink-900;
+}
+@utility card-hover {
+  @apply transition duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-500/40;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700;
+}
+@utility btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10;
+}
+@utility btn-ghost {
+  @apply btn text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+@utility input {
+  @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-white/10 dark:bg-ink-850;
+}
+@utility muted {
+  @apply text-slate-500 dark:text-slate-400;
+}
+.prose-lite p { @apply mb-3 leading-relaxed; }
+.prose-lite ul { @apply mb-3 list-disc space-y-1 pl-5; }
+.prose-lite code { @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.85em] text-violet-700 dark:bg-white/10 dark:text-cyan-300; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+@keyframes toast {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Warna token syntax highlighting */
+.code-surface { @apply bg-slate-50 text-slate-800 dark:bg-ink-950 dark:text-slate-200; }
+.tok-comment { @apply text-slate-400 italic dark:text-slate-500; }
+.tok-tag { @apply text-indigo-600 dark:text-indigo-300; }
+.tok-attr { @apply text-violet-600 dark:text-violet-300; }
+.tok-string { @apply text-emerald-700 dark:text-emerald-300; }
+.tok-number { @apply text-amber-700 dark:text-amber-300; }
+.tok-keyword { @apply text-cyan-700 dark:text-cyan-300; }
+.tok-fn { @apply text-sky-700 dark:text-sky-300; }
+.tok-meta { @apply text-rose-600 dark:text-rose-300; }
