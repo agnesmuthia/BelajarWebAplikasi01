@@ -1,4 +1,5 @@
 import { sha256 } from './hash'
+import type { DirLike } from './localFolder'
 import { mimeOf } from './paths'
 
 /**
@@ -47,14 +48,15 @@ export function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') return reject(new Error('Browser ini tidak mendukung IndexedDB.'))
-    const r = indexedDB.open(DB_NAME, 1)
+    // v1: files, blobs, snapshots · v2: handles (folder lokal yang dihubungkan, Phase 5)
+    const r = indexedDB.open(DB_NAME, 2)
     r.onupgradeneeded = () => {
       const db = r.result
-      const files = db.createObjectStore('files', { keyPath: ['projectId', 'path'] })
-      files.createIndex('projectId', 'projectId')
-      db.createObjectStore('blobs', { keyPath: 'hash' })
-      const snaps = db.createObjectStore('snapshots', { keyPath: 'id', autoIncrement: true })
-      snaps.createIndex('projectId', 'projectId')
+      const has = (n: string) => db.objectStoreNames.contains(n)
+      if (!has('files')) db.createObjectStore('files', { keyPath: ['projectId', 'path'] }).createIndex('projectId', 'projectId')
+      if (!has('blobs')) db.createObjectStore('blobs', { keyPath: 'hash' })
+      if (!has('snapshots')) db.createObjectStore('snapshots', { keyPath: 'id', autoIncrement: true }).createIndex('projectId', 'projectId')
+      if (!has('handles')) db.createObjectStore('handles', { keyPath: 'projectId' })
     }
     r.onsuccess = () => resolve(r.result)
     r.onerror = () => {
@@ -256,9 +258,10 @@ export async function gcBlobs(): Promise<number> {
 export async function deleteProjectData(projectId: string): Promise<void> {
   const files = await listFiles(projectId)
   const snaps = await listSnapshots(projectId)
-  await tx(['files', 'snapshots'], 'readwrite', (t) => {
+  await tx(['files', 'snapshots', 'handles'], 'readwrite', (t) => {
     files.forEach((f) => t.objectStore('files').delete([projectId, f.path]))
     snaps.forEach((s) => t.objectStore('snapshots').delete(s.id))
+    t.objectStore('handles').delete(projectId)
   })
   await gcBlobs()
   emit(projectId)
@@ -283,12 +286,39 @@ export async function requestPersistence(): Promise<boolean> {
   }
 }
 
-/** Hapus semua file, blob, dan checkpoint (dipakai oleh “Reset semua data”). */
+/** Hapus semua file, blob, checkpoint, dan tautan folder lokal (dipakai oleh “Reset semua data”). */
 export async function clearAllProjectData(): Promise<void> {
-  await tx(['files', 'blobs', 'snapshots'], 'readwrite', (t) => {
+  await tx(['files', 'blobs', 'snapshots', 'handles'], 'readwrite', (t) => {
     t.objectStore('files').clear()
     t.objectStore('blobs').clear()
     t.objectStore('snapshots').clear()
+    t.objectStore('handles').clear()
   })
   listeners.forEach((set) => set.forEach((fn) => fn()))
+}
+
+/* ------------------------- folder lokal (Phase 5) ------------------------- */
+
+export interface StoredHandle {
+  projectId: string
+  /** FileSystemDirectoryHandle — bisa disimpan di IndexedDB, tetapi izinnya harus diminta ulang tiap sesi. */
+  handle: DirLike
+  name: string
+  linkedAt: string
+}
+
+export async function saveFolderHandle(projectId: string, handle: DirLike): Promise<void> {
+  await tx(['handles'], 'readwrite', (t) => {
+    t.objectStore('handles').put({ projectId, handle, name: handle.name, linkedAt: new Date().toISOString() } satisfies StoredHandle)
+  })
+}
+
+export async function getFolderHandle(projectId: string): Promise<StoredHandle | undefined> {
+  return (await tx(['handles'], 'readonly', (t) => req(t.objectStore('handles').get(projectId)))) as StoredHandle | undefined
+}
+
+export async function removeFolderHandle(projectId: string): Promise<void> {
+  await tx(['handles'], 'readwrite', (t) => {
+    t.objectStore('handles').delete(projectId)
+  })
 }

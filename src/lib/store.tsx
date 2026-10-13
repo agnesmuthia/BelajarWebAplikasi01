@@ -13,6 +13,8 @@ interface Store {
   updateSettings: (patch: Partial<Settings>) => void
   recordQuizAttempt: (lessonId: string, passed: boolean) => void
   completeMission: (id: string) => void
+  toggleLocalStep: (id: string, label: string) => void
+  setEnvVersion: (tool: string, version: string | null) => void
   recordChallenge: (id: string, change: { run?: boolean; passed?: boolean; hint?: boolean; solution?: boolean }) => void
   createProject: (templateId: string, name: string) => string
   updateProject: (id: string, patch: Partial<Pick<UserProject, 'name' | 'notes' | 'repoUrl' | 'deployUrl' | 'status' | 'favorite'>>, event?: string) => void
@@ -114,6 +116,27 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
     )
   }, [])
 
+  const toggleLocalStep = useCallback((id: string, label: string) => {
+    setState((s) => {
+      const steps = { ...s.local.steps }
+      if (steps[id]) {
+        delete steps[id]
+        return { ...s, local: { ...s.local, steps } }
+      }
+      steps[id] = nowIso()
+      return withActivity({ ...s, local: { ...s.local, steps } }, { kind: 'task', label: `Local Workflow: ${label}` })
+    })
+  }, [])
+
+  const setEnvVersion = useCallback((tool: string, version: string | null) => {
+    setState((s) => {
+      const env = { ...s.local.env }
+      if (version) env[tool] = version
+      else delete env[tool]
+      return { ...s, local: { ...s.local, env } }
+    })
+  }, [])
+
   const createProject = useCallback((templateId: string, name: string) => {
     const id = newId()
     const t = nowIso()
@@ -188,8 +211,8 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
   const resetAll = useCallback(() => setState(createInitialState()), [])
 
   const value = useMemo(
-    () => ({ state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, completeMission, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll }),
-    [state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, completeMission, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll],
+    () => ({ state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, completeMission, toggleLocalStep, setEnvVersion, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll }),
+    [state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, completeMission, toggleLocalStep, setEnvVersion, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

@@ -6,6 +6,7 @@ import { ToastProvider } from './lib/toast'
 import Dashboard from './pages/Dashboard'
 import GitHubCenter from './pages/github/GitHubCenter'
 import Integrations from './pages/Integrations'
+import LocalWorkflow from './pages/LocalWorkflow'
 import LabHome from './pages/lab/LabHome'
 import LearningPath from './pages/LearningPath'
 import LessonPage from './pages/LessonPage'
@@ -44,6 +45,7 @@ export function AppRoutes() {
         <Route path="github" element={<GitHubCenter />} />
         <Route path="github/m/:missionId" element={<Suspense fallback={loading}><MissionPage /></Suspense>} />
         <Route path="integrations" element={<Integrations />} />
+        <Route path="local" element={<LocalWorkflow />} />
         <Route path="skills" element={<Skills />} />
         <Route path="roadmap" element={<Roadmap />} />
         <Route path="settings" element={<Settings />} />

@@ -19,6 +19,7 @@ import {
   XCircle,
   X,
   FileArchive,
+  HardDrive,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type FormEvent } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
@@ -39,6 +40,7 @@ import { CheckpointPanel } from '../../workspace/CheckpointPanel'
 import { createSnapshot, deletePaths, getBlob, movePath, writeFiles, writeText, type StoredFile } from '../../workspace/db'
 import { FileTree, type TreeSelection } from '../../workspace/FileTree'
 import { ImportDialog } from '../../workspace/ImportDialog'
+import { LocalFolderPanel } from '../../workspace/LocalFolderPanel'
 import { fromDataTransfer, fromFiles, fromZip, isZip, readForStore, type ImportSource, type PlanRow } from '../../workspace/importer'
 import { basename, dirname, formatBytes, isTextKind, kindOf, normalizePath, type FileKind } from '../../workspace/paths'
 import { assetDataUrls, useProjectFiles } from '../../workspace/useProjectFiles'
@@ -52,7 +54,7 @@ interface Entry {
   loc?: DocLocation | null
   hint?: ErrorHint | null
 }
-type RightTab = 'preview' | 'console' | 'audit' | 'checkpoint'
+type RightTab = 'preview' | 'console' | 'audit' | 'checkpoint' | 'local'
 type Pane = 'files' | 'code' | 'output'
 
 const LANG: Partial<Record<FileKind, EditorLang>> = { html: 'html', css: 'css', js: 'js', json: 'json', md: 'md', text: 'text' }
@@ -113,7 +115,7 @@ function Editor({ projectId }: { projectId: string }) {
   const [entries, setEntries] = useState<Entry[]>([])
   const [prompt, setPrompt] = useState<PromptState>(null)
   const [toDelete, setToDelete] = useState<TreeSelection | null>(null)
-  const [importing, setImporting] = useState<{ sources: ImportSource[]; origin: string; key: number } | null>(null)
+  const [importing, setImporting] = useState<{ sources: ImportSource[]; origin: string; key: number; dest?: string; keepNames?: boolean } | null>(null)
   const [importBusy, setImportBusy] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [formatting, setFormatting] = useState(false)
@@ -358,14 +360,14 @@ function Editor({ projectId }: { projectId: string }) {
 
   /* ------------------------------- impor ------------------------------- */
 
-  const startImport = async (sources: ImportSource[], origin: string) => {
+  const startImport = async (sources: ImportSource[], origin: string, dest?: string, keepNames = false) => {
     try {
       if (sources.length === 1 && isZip(sources[0].relPath)) {
         sources = await fromZip(await sources[0].read())
         origin = `${origin} (ZIP diekstrak)`
       }
       if (!sources.length) return toast('Tidak ada file untuk diimpor.', 'info')
-      setImporting({ sources, origin, key: Date.now() })
+      setImporting({ sources, origin, key: Date.now(), dest, keepNames })
     } catch (e) {
       toast(e instanceof Error ? e.message : String(e), 'error')
     }
@@ -538,6 +540,7 @@ function Editor({ projectId }: { projectId: string }) {
               ['console', 'Console', Terminal],
               ['audit', 'Pemeriksaan', ListChecks],
               ['checkpoint', 'Checkpoint', GitCommitHorizontal],
+              ['local', 'Folder lokal', HardDrive],
             ] as [RightTab, string, typeof Eye][]).map(([id, label, Icon]) => (
               <button key={id} role="tab" aria-selected={right === id} onClick={() => setRight(id)} className={cx('-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-2.5 py-1.5 text-xs font-medium', right === id ? 'border-indigo-500 text-indigo-700 dark:text-cyan-300' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white')}>
                 <Icon className="size-3.5" /> {label}
@@ -587,6 +590,19 @@ function Editor({ projectId }: { projectId: string }) {
             {right === 'audit' && (
               <div className="absolute inset-0 overflow-y-auto bg-white dark:bg-ink-900">
                 <AuditPanel items={audit} testTitles={testTitles} consoleErrors={errorCount} />
+              </div>
+            )}
+
+            {right === 'local' && (
+              <div className="absolute inset-0 overflow-y-auto bg-white dark:bg-ink-900">
+                <LocalFolderPanel
+                  projectId={projectId}
+                  files={files}
+                  textOf={(p) => buffers[p]}
+                  flush={flush}
+                  onPull={(sources, origin) => void startImport(sources, origin, '', true)}
+                  onPushed={(n, folder) => updateProject(projectId, {}, `Disimpan ke folder lokal “${folder}”: ${n} file`)}
+                />
               </div>
             )}
 
@@ -649,7 +665,8 @@ function Editor({ projectId }: { projectId: string }) {
           existing={new Map((files ?? []).map((f) => [f.path, f.size]))}
           existingBytes={totalBytes}
           folders={folders}
-          defaultDest={importing.sources.every((s) => kindOf(s.relPath) === 'image') && folders.includes('assets') ? 'assets' : currentFolder}
+          keepNames={importing.keepNames}
+          defaultDest={importing.dest ?? (importing.sources.every((s) => kindOf(s.relPath) === 'image') && folders.includes('assets') ? 'assets' : currentFolder)}
           busy={importBusy}
           onCancel={() => setImporting(null)}
           onConfirm={(rows) => void confirmImport(rows)}

@@ -3,10 +3,23 @@
 Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, dan **Phase 4 — Git & GitHub**. Fitur fase
+> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, **Phase 4 — Git & GitHub**, dan **Phase 5 — Local Workflow**. Fitur fase
 > berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
 
 ---
+
+## Phase 5 — Local Workflow
+
+| Fitur | Keterangan |
+|---|---|
+| **Halaman Local Workflow** (`/#/local`) | 8 langkah: cek kesiapan komputer, VS Code, terminal VS Code, development server statis (Live Server / `npx serve`), proyek npm & Vite, folder lokal ↔ DevStudio, folder lokal ↔ GitHub, dan Claude Code. Setiap perintah menjelaskan **di mana dijalankan**, **hasil yang diharapkan**, dan **error umum beserta solusinya**. |
+| **Pemeriksa kesiapan** | Tempel output `git --version`, `node -v`, `npm -v`, `code --version` dari terminalmu; DevStudio menilai versinya (mis. Node ≥ 20.19 untuk Vite) dan mengenali pesan “not recognized / command not found”. DevStudio tidak menjalankan perintah apa pun di komputermu. |
+| **Folder lokal ↔ proyek** | Di editor proyek, tab **Folder lokal** (Chrome/Edge desktop, File System Access API): pilih folder lewat dialog browser → **Bandingkan** (teks dibandingkan langsung, gambar lewat SHA-256) → **Ambil dari folder** (lewat pratinjau impor + checkpoint otomatis) atau **Simpan ke folder** (daftar file baru/ditimpa + konfirmasi). Tautan folder diingat per proyek; izin diminta ulang tiap sesi. |
+| **Claude Code** | Apa itu, cara memulai di folder proyek, biaya (butuh akun berbayar/API), kebiasaan aman (commit dulu, baca diff, jangan tempel rahasia), contoh permintaan yang menjaga proses belajar, dan contoh `CLAUDE.md`. |
+
+**Keamanan folder lokal:** hanya folder yang dipilih pengguna; `node_modules` dan folder tersembunyi (`.git`)
+dilewati; path divalidasi (tanpa `..`); DevStudio **tidak pernah menghapus** file di komputer. Browser lain
+(Firefox, Safari, ponsel) tetap bisa memakai Impor folder/ZIP dan unduhan ZIP.
 
 ## Phase 4 — Git & GitHub
 
@@ -198,7 +211,7 @@ diperbarui otomatis. Hentikan server dengan **Ctrl + C**.
 Otomatis:
 
 ```bash
-npm test          # 65 test: …, simulator Git & 8 misi, klien GitHub API, halaman GitHub
+npm test          # 71 test: …, simulator Git & misi, GitHub API, folder lokal, pemeriksa versi
 npm run build     # memastikan TypeScript & build produksi lolos
 ```
 
@@ -245,6 +258,14 @@ Manual Git & GitHub:
 3. **Remote, Push & Pull**: tekan tombol simulasi rekan tim, lalu lihat `git push` ditolak dan selesaikan dengan `git pull`.
 4. **Integrations**: masukkan username GitHub-mu → buka sebuah repository → hubungkan ke proyek → buka proyek → tab Repo & Deploy.
 5. Coba **DEMO** tanpa username; pastikan label DEMO terlihat.
+
+Manual Local Workflow (Chrome/Edge desktop):
+
+1. **Local Workflow → Cek kesiapan**: tempel output keempat perintah dari terminalmu.
+2. Buat folder kosong di komputer (mis. `Documents/website-sekolah`). Di editor proyek → tab **Folder lokal** → **Pilih folder…** → izinkan.
+3. **Simpan ke folder** → buka folder itu di VS Code dan jalankan dengan Live Server.
+4. Ubah satu file di VS Code dan simpan → kembali ke DevStudio → **Bandingkan lagi** → **Ambil dari folder**.
+5. Di folder itu, jalankan `git init`, `git add .`, `git commit -m "Initial commit"` dan hubungkan ke GitHub.
 
 ---
 

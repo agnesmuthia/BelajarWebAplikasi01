@@ -20,7 +20,7 @@ export const defaultSettings: Settings = {
 }
 
 export function createInitialState(): AppState {
-  return { version: 1, settings: { ...defaultSettings }, lessons: {}, challenges: {}, missions: {}, projects: [], activity: [] }
+  return { version: 1, settings: { ...defaultSettings }, lessons: {}, challenges: {}, missions: {}, local: { steps: {}, env: {} }, projects: [], activity: [] }
 }
 
 const MODES: LearningMode[] = ['guided', 'practice', 'build', 'debug', 'github', 'deploy']
@@ -83,6 +83,13 @@ export function sanitizeState(raw: unknown): AppState {
     for (const [id, v] of Object.entries(raw.missions).slice(0, 100)) if (isObj(v) && isIso(v.completedAt)) missions[id.slice(0, 64)] = { completedAt: v.completedAt }
   }
 
+  const local: AppState['local'] = { steps: {}, env: {} }
+  if (isObj(raw.local)) {
+    const l = raw.local
+    if (isObj(l.steps)) for (const [k, v] of Object.entries(l.steps).slice(0, 50)) if (isIso(v)) local.steps[k.slice(0, 40)] = v
+    if (isObj(l.env)) for (const [k, v] of Object.entries(l.env).slice(0, 10)) if (typeof v === 'string' && /^[\d.]{1,20}$/.test(v)) local.env[k.slice(0, 20)] = v
+  }
+
   const projects: UserProject[] = Array.isArray(raw.projects)
     ? raw.projects.filter(isObj).slice(0, 200).flatMap((p): UserProject[] => {
         const id = str(p.id, '', 64)
@@ -123,7 +130,7 @@ export function sanitizeState(raw: unknown): AppState {
         .map((a) => ({ at: a.at as string, kind: a.kind as AppState['activity'][number]['kind'], label: str(a.label, '', 160) }))
     : []
 
-  return { version: 1, settings, lessons, challenges, missions, projects, activity }
+  return { version: 1, settings, lessons, challenges, missions, local, projects, activity }
 }
 
 export function loadState(storage: Storage | undefined = globalThis.localStorage): AppState {

@@ -13,16 +13,18 @@ interface Props {
   existingBytes: number
   folders: string[]
   defaultDest: string
+  /** Sinkronisasi folder lokal: nama & struktur harus dipertahankan persis. */
+  keepNames?: boolean
   busy: boolean
   onCancel: () => void
   onConfirm: (rows: PlanRow[]) => void
 }
 
 /** Pratinjau impor: pengguna melihat ke mana setiap file disimpan dan file mana yang akan ditimpa. */
-export function ImportDialog({ open, sources, origin, existing, existingBytes, folders, defaultDest, busy, onCancel, onConfirm }: Props) {
+export function ImportDialog({ open, sources, origin, existing, existingBytes, folders, defaultDest, keepNames = false, busy, onCancel, onConfirm }: Props) {
   const [dest, setDest] = useState(defaultDest)
-  const [tidy, setTidy] = useState(true)
-  const [strip, setStrip] = useState(true)
+  const [tidy, setTidy] = useState(!keepNames)
+  const [strip, setStrip] = useState(!keepNames)
   const [keep, setKeep] = useState<Set<string>>(new Set())
 
   const stripped = useMemo(() => stripCommonRoot(sources), [sources])

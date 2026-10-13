@@ -72,6 +72,8 @@ export interface AppState {
   challenges: Record<string, ChallengeProgress>
   /** Misi simulator Git yang selesai. */
   missions: Record<string, { completedAt: string }>
+  /** Local Workflow: langkah yang ditandai selesai (waktu ISO) & versi alat yang sudah dicek. */
+  local: { steps: Record<string, string>; env: Record<string, string> }
   projects: UserProject[]
   activity: Activity[]
 }
