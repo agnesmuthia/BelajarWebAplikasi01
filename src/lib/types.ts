@@ -13,12 +13,24 @@ export interface Settings {
   /** Target harian: jumlah aktivitas belajar (pelajaran lulus / tugas selesai). */
   dailyGoal: number
   sidebarCollapsed: boolean
+  /** Coding Lab: jalankan ulang preview otomatis saat kode berubah. */
+  labAutoRun: boolean
 }
 
 export interface LessonProgress {
   /** Jumlah percobaan kuis checkpoint. */
   attempts: number
   /** Waktu (ISO) ketika checkpoint lulus. */
+  passedAt?: string
+}
+
+export interface ChallengeProgress {
+  /** Berapa kali kode dijalankan. */
+  runs: number
+  /** Jumlah petunjuk yang dibuka. */
+  hintsUsed: number
+  /** true jika solusi dibuka SEBELUM lulus. */
+  solutionViewed: boolean
   passedAt?: string
 }
 
@@ -43,7 +55,7 @@ export interface UserProject {
   history: ProjectEvent[]
 }
 
-export type ActivityKind = 'lesson' | 'task' | 'test' | 'project'
+export type ActivityKind = 'lesson' | 'task' | 'test' | 'project' | 'challenge'
 
 export interface Activity {
   at: string
@@ -55,6 +67,7 @@ export interface AppState {
   version: 1
   settings: Settings
   lessons: Record<string, LessonProgress>
+  challenges: Record<string, ChallengeProgress>
   projects: UserProject[]
   activity: Activity[]
 }

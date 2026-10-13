@@ -1,3 +1,4 @@
+import { CHALLENGES } from '../data/challenges'
 import { ALL_LESSONS, MODULES, type Module } from '../data/curriculum'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
 import { SKILLS, type Skill, type SkillId } from '../data/skills'
@@ -52,6 +53,8 @@ export interface SkillEvidence {
   level: SkillLevel
   lessons: string[]
   tasks: { project: string; task: string }[]
+  /** Tantangan Coding Lab yang lulus TANPA membuka solusi lebih dulu. */
+  challenges: string[]
 }
 
 export const SKILL_LEVEL_LABEL: Record<SkillLevel, string> = {
@@ -64,12 +67,13 @@ export const SKILL_LEVEL_LABEL: Record<SkillLevel, string> = {
 /**
  * Keterampilan dinilai dari BUKTI, bukan jumlah materi yang dibaca:
  * - learning   : lulus checkpoint pelajaran terkait
- * - practiced  : menyelesaikan ≥ 1 tugas proyek terkait
- * - mastered   : lulus checkpoint DAN ≥ 3 tugas proyek terkait (dari proyek mana pun)
+ * - practiced  : ≥ 1 tugas proyek ATAU ≥ 1 tantangan Coding Lab (tanpa solusi) terkait
+ * - mastered   : lulus checkpoint, ≥ 1 tugas proyek, DAN total ≥ 3 bukti praktik
+ *                (tugas proyek + tantangan). Tanpa proyek nyata, skill tidak bisa “dikuasai”.
  */
 export function computeSkills(state: AppState): SkillEvidence[] {
   const byId = new Map<SkillId, SkillEvidence>(
-    SKILLS.map((s) => [s.id, { skill: s, level: 'none' as SkillLevel, lessons: [], tasks: [] }]),
+    SKILLS.map((s) => [s.id, { skill: s, level: 'none' as SkillLevel, lessons: [], tasks: [], challenges: [] }]),
   )
 
   for (const l of ALL_LESSONS) {
@@ -86,9 +90,16 @@ export function computeSkills(state: AppState): SkillEvidence[] {
     }
   }
 
+  for (const c of CHALLENGES) {
+    const p = state.challenges[c.id]
+    if (!p?.passedAt || p.solutionViewed) continue
+    for (const sid of c.skills) byId.get(sid)?.challenges.push(c.title)
+  }
+
   for (const e of byId.values()) {
-    if (e.lessons.length > 0 && e.tasks.length >= 3) e.level = 'mastered'
-    else if (e.tasks.length > 0) e.level = 'practiced'
+    const practice = e.tasks.length + e.challenges.length
+    if (e.lessons.length > 0 && e.tasks.length > 0 && practice >= 3) e.level = 'mastered'
+    else if (practice > 0) e.level = 'practiced'
     else if (e.lessons.length > 0) e.level = 'learning'
   }
   return [...byId.values()]
@@ -129,4 +140,8 @@ export function streak(state: AppState, now = new Date()) {
     d.setDate(d.getDate() - 1)
   }
   return n
+}
+
+export function nextChallenge(state: AppState) {
+  return CHALLENGES.find((c) => !state.challenges[c.id]?.passedAt) ?? null
 }

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { findChallenge } from '../data/challenges'
 import { findLesson } from '../data/curriculum'
 import { findTemplate } from '../data/projects'
 import { createInitialState, loadState, sanitizeState, saveState, STORAGE_KEY } from './storage'
@@ -10,6 +11,7 @@ interface Store {
   persistOk: boolean
   updateSettings: (patch: Partial<Settings>) => void
   recordQuizAttempt: (lessonId: string, passed: boolean) => void
+  recordChallenge: (id: string, change: { run?: boolean; passed?: boolean; hint?: boolean; solution?: boolean }) => void
   createProject: (templateId: string, name: string) => string
   updateProject: (id: string, patch: Partial<Pick<UserProject, 'name' | 'notes' | 'repoUrl' | 'deployUrl' | 'status' | 'favorite'>>, event?: string) => void
   toggleProjectItem: (id: string, list: 'tasksDone' | 'testsDone', itemId: string) => void
@@ -78,6 +80,27 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
         return withActivity(next, { kind: 'lesson', label: `Lulus checkpoint: ${findLesson(lessonId)?.title ?? lessonId}` })
       }
       return next
+    })
+  }, [])
+
+  const recordChallenge: Store['recordChallenge'] = useCallback((id, change) => {
+    setState((s) => {
+      const prev = s.challenges[id] ?? { runs: 0, hintsUsed: 0, solutionViewed: false }
+      const newlyPassed = Boolean(change.passed && !prev.passedAt)
+      const next: AppState = {
+        ...s,
+        challenges: {
+          ...s.challenges,
+          [id]: {
+            runs: prev.runs + (change.run ? 1 : 0),
+            hintsUsed: prev.hintsUsed + (change.hint ? 1 : 0),
+            // Solusi hanya “dihitung” jika dibuka sebelum lulus.
+            solutionViewed: prev.solutionViewed || Boolean(change.solution && !prev.passedAt),
+            ...(prev.passedAt || newlyPassed ? { passedAt: prev.passedAt ?? nowIso() } : {}),
+          },
+        },
+      }
+      return newlyPassed ? withActivity(next, { kind: 'challenge', label: `Lulus tantangan: ${findChallenge(id)?.title ?? id}` }) : next
     })
   }, [])
 
@@ -155,8 +178,8 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
   const resetAll = useCallback(() => setState(createInitialState()), [])
 
   const value = useMemo(
-    () => ({ state, persistOk, updateSettings, recordQuizAttempt, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll }),
-    [state, persistOk, updateSettings, recordQuizAttempt, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll],
+    () => ({ state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll }),
+    [state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

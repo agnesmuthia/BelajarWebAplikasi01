@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "DevStudio Academy — My Web Development Laboratory",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -13,8 +15,18 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-css": "^6.3.1",
+    "@codemirror/lang-html": "^6.4.12",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.14",
+    "@lezer/highlight": "^1.2.5",
+    "codemirror": "^6.0.2",
     "fflate": "^0.8.3",
     "lucide-react": "^1.55.0",
+    "prettier": "^3.9.10",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.4"

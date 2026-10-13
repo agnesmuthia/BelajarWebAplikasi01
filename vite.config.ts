@@ -7,6 +7,8 @@ import tailwindcss from '@tailwindcss/vite'
 // (misalnya GitHub Pages: https://username.github.io/nama-repo/).
 export default defineConfig({
   base: './',
+  // Chunk editor (CodeMirror) ±600 KB, dimuat terpisah hanya di halaman editor.
+  build: { chunkSizeWarningLimit: 700 },
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'jsdom',

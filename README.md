@@ -3,10 +3,36 @@
 Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini adalah **Phase 1 — Foundation**. Fitur fase berikutnya ditandai dengan label
-> “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
+> Versi ini mencakup **Phase 1 — Foundation** dan **Phase 2 — Coding Lab**. Fitur fase
+> berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
 
 ---
+
+## Phase 2 — Coding Lab
+
+| Fitur | Keterangan |
+|---|---|
+| **Editor** | CodeMirror 6 untuk `index.html`, `style.css`, `script.js`: syntax highlighting, nomor baris, indentasi, autocomplete, pencarian (Ctrl+F), undo per file. |
+| **Run / Reset / Format** | Run (Ctrl/⌘+Enter) atau *Auto-run*; Reset ke kode awal (dengan konfirmasi); Format memakai Prettier yang baru dimuat saat dibutuhkan. |
+| **Live preview** | iframe terisolasi, berdampingan dengan editor di desktop; tab Instruksi/Kode/Hasil di ponsel. |
+| **Console & error** | `console.log/info/warn/error`, error JavaScript dengan **file:baris yang bisa diklik** dan **penjelasan untuk pemula** berdasarkan pesan error sebenarnya. `alert/confirm/prompt` ditampilkan di Console. |
+| **Pelindung infinite loop** | Loop yang berjalan > 1 detik dihentikan dengan pesan yang menunjuk ke baris loop-nya. |
+| **10 tantangan** | 6 latihan + 4 debugging, masing-masing dengan brief, langkah, petunjuk bertahap, **pemeriksa otomatis**, dan solusi + penjelasan perubahan. |
+| **Diharapkan vs aktual** | Tab *Cek* menampilkan nilai yang diharapkan dan nilai aktual untuk setiap pemeriksaan; tab *Target* menampilkan hasil akhir yang diharapkan. |
+| **Explain This Code** | Menjelaskan baris/seleksi dari **glosarium lokal** (±120 istilah HTML, CSS, JS, DOM) — bukan AI, dan dinyatakan jelas di UI. |
+| **Draft otomatis** | Kode tersimpan otomatis per tantangan/template dan ikut dalam Export backup. |
+| **Unduh** | ZIP berisi `index.html`, `style.css`, `script.js` yang siap dibuka di VS Code. |
+| **Playground** | 3 template bebas, plus tombol **Coba di Lab** pada contoh kode pelajaran JS/DOM. |
+| **Materi baru** | Modul *JavaScript Fundamentals* (3 pelajaran) dan *DOM Manipulation* (2 pelajaran). |
+| **Mode** | *Build Mode* menampilkan Playground lebih dulu; *Debug Mode* langsung memfilter tantangan debugging. |
+
+**Integritas progres:** tantangan yang lulus *setelah* membuka solusi ditandai “dibantu solusi”
+dan tidak dihitung di Skill Tracker. Skill baru “Dikuasai” jika ada bukti dari proyek nyata.
+
+**Batasan yang jujur:** Lab hanya menjalankan HTML/CSS/JavaScript biasa. npm, React, `import`
+modul, file lokal (mis. `assets/foto.jpg`), dan `fetch` ke internet tidak didukung di preview —
+untuk itu gunakan lingkungan lokal (VS Code + `npm run dev`). Loop tanpa kurung kurawal
+(`while (x) i++;`) tidak dilindungi.
 
 ## Apa yang sudah berfungsi (Phase 1)
 
@@ -33,8 +59,11 @@ Browser
      ├─ HashRouter            → alamat /#/... agar jalan di hosting statis tanpa konfigurasi
      ├─ StoreProvider         → state aplikasi + simpan otomatis ke localStorage
      │    └─ sanitizeState()  → validasi semua data dari localStorage / file backup
-     ├─ data/                 → kurikulum, template proyek, skill (konten statis, bisa di-review di Git)
+     ├─ data/                 → kurikulum, tantangan, template proyek, skill (konten statis)
+     ├─ lab/                  → Coding Lab: editor, runtime preview, pemeriksa, glosarium
+     │    └─ runtime.ts       → gabungkan 3 file → 1 dokumen + peta baris + skrip runtime
      └─ iframe sandbox        → preview kode yang terisolasi (lihat Keamanan)
+          └─ postMessage      → console, error, dan hasil pemeriksaan dikirim ke aplikasi
 ```
 
 Tidak ada backend dan tidak ada secrets. Semua data tetap di browser pengguna.
@@ -50,7 +79,8 @@ Tidak ada backend dan tidak ada secrets. Semua data tetap di browser pengguna.
 │   ├── index.css            # Tailwind + token warna (charcoal, indigo, violet, cyan)
 │   ├── components/          # Komponen UI reusable (Layout, CodeBlock, Modal, dll.)
 │   ├── pages/               # Satu file per halaman
-│   ├── data/                # curriculum.ts, projects.ts, skills.ts, modes.ts
+│   ├── data/                # curriculum*.ts, challenges.ts, projects.ts, skills.ts, modes.ts
+│   ├── lab/                 # CodeEditor, LabWorkspace, runtime, loopProtect, glossary, errorHints
 │   ├── lib/                 # store, storage, progress, preview, highlight, download
 │   └── test/                # Unit & component test (Vitest + Testing Library)
 ├── vite.config.ts
@@ -61,8 +91,11 @@ Tidak ada backend dan tidak ada secrets. Semua data tetap di browser pengguna.
 
 - Preview kode berjalan di `<iframe sandbox="allow-scripts allow-forms">` **tanpa** `allow-same-origin`,
   sehingga kode di dalamnya tidak bisa membaca localStorage, cookie, atau DOM aplikasi.
-- Setiap dokumen preview diberi Content-Security-Policy `default-src 'none'` — tidak bisa memuat
-  apa pun dari internet atau mengirim data keluar.
+- Setiap dokumen preview diberi Content-Security-Policy `default-src 'none'`: `fetch`/XHR/WebSocket
+  diblokir dan form tidak bisa dikirim ke mana pun. Coding Lab hanya mengizinkan gambar/media dari
+  `https:` dan font dari Google Fonts.
+- Aplikasi hanya menerima pesan dari iframe jika `event.source` adalah iframe preview yang aktif
+  **dan** token acak run saat itu cocok. Output console dibatasi agar tidak membanjiri aplikasi.
 - Data dari localStorage dan file backup divalidasi (`sanitizeState`) sebelum dipakai; file
   backup dibatasi 2 MB.
 - URL yang disimpan pengguna hanya diterima jika `http(s)`; link repository harus `https://github.com/user/repo`.
@@ -122,7 +155,7 @@ diperbarui otomatis. Hentikan server dengan **Ctrl + C**.
 Otomatis:
 
 ```bash
-npm test          # 17 test: konten kurikulum, validasi data, progres, preview, alur kuis
+npm test          # 31 test: kurikulum, validasi data, progres, preview, alur kuis, Coding Lab
 npm run build     # memastikan TypeScript & build produksi lolos
 ```
 
@@ -141,6 +174,16 @@ Manual (checklist):
 8. Tombol matahari/bulan → tema terang/gelap. Perkecil jendela ke ukuran ponsel → menu menjadi
    tombol ☰, tidak ada scroll horizontal.
 9. **Pengaturan → Export backup**, lalu **Reset**, lalu **Import backup** → data kembali.
+
+Manual Coding Lab:
+
+1. **Coding Lab → Tombol yang Tidak Bereaksi.** Tab Console menampilkan `TypeError` dengan penjelasan;
+   klik `script.js:4` → kursor melompat ke baris itu.
+2. Perbaiki satu bug, Run lagi, lihat tab **Cek** berubah (diharapkan vs aktual).
+3. Di Playground, tulis `while (true) {}` di script.js → loop dihentikan setelah ±1 detik dan halaman tetap responsif.
+4. Klik **Format** pada kode yang berantakan; klik **Explain** pada sebuah baris.
+5. Muat ulang halaman → kode masih ada (draft). **Reset** → kembali ke kode awal.
+6. Buka semua petunjuk → **Lihat solusi** → *Terapkan ke editor* → semua cek hijau, badge “dibantu solusi”.
 
 ---
 

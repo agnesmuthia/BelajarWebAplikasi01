@@ -24,12 +24,12 @@ export const MODE_INFO: Record<LearningMode, ModeInfo> = {
     description: 'Mengerjakan tantangan secara mandiri.',
     icon: Dumbbell,
     phase: 1,
-    effect: 'Petunjuk dikunci sampai kamu mencoba kuis checkpoint minimal satu kali.',
+    effect: 'Petunjuk dikunci sampai kamu mencoba kuis checkpoint atau menjalankan kode di Coding Lab.',
   },
-  build: { label: 'Build Mode', description: 'Membangun proyek nyata di Coding Lab.', icon: Hammer, phase: 2, effect: 'Membutuhkan Coding Lab (Phase 2).' },
-  debug: { label: 'Debug Mode', description: 'Mencari dan memperbaiki bug.', icon: Bug, phase: 2, effect: 'Membutuhkan tantangan debugging (Phase 2).' },
+  build: { label: 'Build Mode', description: 'Membangun dan bereksperimen bebas.', icon: Hammer, phase: 2, effect: 'Coding Lab menampilkan Playground bebas di bagian atas.' },
+  debug: { label: 'Debug Mode', description: 'Mencari dan memperbaiki bug.', icon: Bug, phase: 2, effect: 'Coding Lab langsung menampilkan tantangan debugging.' },
   github: { label: 'GitHub Mode', description: 'Berlatih workflow Git dan GitHub.', icon: GitBranch, phase: 4, effect: 'Membutuhkan simulasi terminal Git (Phase 4).' },
   deploy: { label: 'Deployment Mode', description: 'Menerbitkan proyek ke internet.', icon: Rocket, phase: 6, effect: 'Membutuhkan Deployment Academy (Phase 6).' },
 }
 
-export const CURRENT_PHASE = 1
+export const CURRENT_PHASE = 2

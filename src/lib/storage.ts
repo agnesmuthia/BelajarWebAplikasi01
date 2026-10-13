@@ -15,10 +15,11 @@ export const defaultSettings: Settings = {
   mode: 'guided',
   dailyGoal: 3,
   sidebarCollapsed: false,
+  labAutoRun: true,
 }
 
 export function createInitialState(): AppState {
-  return { version: 1, settings: { ...defaultSettings }, lessons: {}, projects: [], activity: [] }
+  return { version: 1, settings: { ...defaultSettings }, lessons: {}, challenges: {}, projects: [], activity: [] }
 }
 
 const MODES: LearningMode[] = ['guided', 'practice', 'build', 'debug', 'github', 'deploy']
@@ -47,6 +48,7 @@ export function sanitizeState(raw: unknown): AppState {
         ? Math.min(20, Math.max(1, Math.round(s.dailyGoal)))
         : defaultSettings.dailyGoal,
     sidebarCollapsed: s.sidebarCollapsed === true,
+    labAutoRun: s.labAutoRun !== false,
   }
 
   const lessons: AppState['lessons'] = {}
@@ -55,6 +57,20 @@ export function sanitizeState(raw: unknown): AppState {
       if (!isObj(v)) continue
       lessons[id.slice(0, 100)] = {
         attempts: typeof v.attempts === 'number' && v.attempts >= 0 ? Math.floor(v.attempts) : 0,
+        ...(isIso(v.passedAt) ? { passedAt: v.passedAt } : {}),
+      }
+    }
+  }
+
+  const challenges: AppState['challenges'] = {}
+  if (isObj(raw.challenges)) {
+    for (const [id, v] of Object.entries(raw.challenges).slice(0, 500)) {
+      if (!isObj(v)) continue
+      const n = (x: unknown) => (typeof x === 'number' && x >= 0 ? Math.floor(x) : 0)
+      challenges[id.slice(0, 100)] = {
+        runs: n(v.runs),
+        hintsUsed: n(v.hintsUsed),
+        solutionViewed: v.solutionViewed === true,
         ...(isIso(v.passedAt) ? { passedAt: v.passedAt } : {}),
       }
     }
@@ -95,12 +111,12 @@ export function sanitizeState(raw: unknown): AppState {
   const activity: AppState['activity'] = Array.isArray(raw.activity)
     ? raw.activity
         .filter(isObj)
-        .filter((a) => isIso(a.at) && ['lesson', 'task', 'test', 'project'].includes(a.kind as string))
+        .filter((a) => isIso(a.at) && ['lesson', 'task', 'test', 'project', 'challenge'].includes(a.kind as string))
         .slice(-MAX_ACTIVITY)
         .map((a) => ({ at: a.at as string, kind: a.kind as AppState['activity'][number]['kind'], label: str(a.label, '', 160) }))
     : []
 
-  return { version: 1, settings, lessons, projects, activity }
+  return { version: 1, settings, lessons, challenges, projects, activity }
 }
 
 export function loadState(storage: Storage | undefined = globalThis.localStorage): AppState {

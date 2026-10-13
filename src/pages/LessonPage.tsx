@@ -18,6 +18,7 @@ import { CodeBlock } from '../components/CodeBlock'
 import { RichText } from '../components/RichText'
 import { SandboxedPreview } from '../components/SandboxedPreview'
 import { Badge, cx } from '../components/ui'
+import { findChallenge } from '../data/challenges'
 import { findModule, type Lesson } from '../data/curriculum'
 import { skillById } from '../data/skills'
 import { isLessonPassed, isLessonUnlocked } from '../lib/progress'
@@ -77,7 +78,7 @@ function Hints({ lesson, attempts }: { lesson: Lesson; attempts: number }) {
   )
 }
 
-function Quiz({ lesson }: { lesson: Lesson }) {
+function Quiz({ lesson, codeLang }: { lesson: Lesson; codeLang: 'css' | 'js' }) {
   const { state, recordQuizAttempt } = useStore()
   const toast = useToast()
   const passed = isLessonPassed(state, lesson.id)
@@ -122,7 +123,7 @@ function Quiz({ lesson }: { lesson: Lesson }) {
               <legend className="mb-2 font-medium text-slate-900 dark:text-white">
                 {qi + 1}. {q.prompt}
               </legend>
-              {q.code && <CodeBlock code={q.code} lang="css" />}
+              {q.code && <CodeBlock code={q.code} lang={codeLang} />}
               {q.options.map((o, oi) => {
                 const selected = chosen === oi
                 return (
@@ -187,6 +188,7 @@ export default function LessonPage() {
   const next = module.lessons[idx + 1]
   const unlocked = isLessonUnlocked(state, module, lesson.id)
   const passed = isLessonPassed(state, lesson.id)
+  const labChallenge = lesson.lab ? findChallenge(lesson.lab) : undefined
 
   if (!unlocked) {
     return (
@@ -225,7 +227,12 @@ export default function LessonPage() {
         <h2 className="font-semibold text-slate-900 dark:text-white">Contoh kode</h2>
         <p className="muted text-sm">{lesson.example.caption}</p>
         <div className={cx('grid gap-4', lesson.example.previewHtml && 'lg:grid-cols-2')}>
-          <CodeBlock code={lesson.example.code} lang={lesson.example.language} maxHeight={420} />
+          <div className="space-y-2">
+            <CodeBlock code={lesson.example.code} lang={lesson.example.language} maxHeight={420} />
+            {(lesson.example.language === 'js' || lesson.example.language === 'html') && (
+              <Link to={`/lab/play/lesson-${lesson.id}`} className="btn-secondary"><FlaskConical className="size-4" /> Coba di Lab</Link>
+            )}
+          </div>
           {lesson.example.previewHtml && <SandboxedPreview html={lesson.example.previewHtml} title={`Hasil contoh: ${lesson.title}`} height={300} />}
         </div>
         {lesson.example.language === 'bash' && (
@@ -245,7 +252,14 @@ export default function LessonPage() {
       <section className="card border-l-4 border-l-violet-500 p-5 sm:p-6">
         <h2 className="mb-2 font-semibold text-slate-900 dark:text-white">🎯 Tantangan mandiri</h2>
         <p className="text-[15px] text-slate-700 dark:text-slate-300"><RichText text={lesson.challenge} /></p>
-        <p className="muted mt-3 text-xs">Kerjakan di VS Code di komputermu. Editor dan pemeriksa otomatis di dalam DevStudio hadir di Coding Lab (Phase 2).</p>
+        {labChallenge ? (
+          <Link to={`/lab/c/${labChallenge.id}`} className="btn-primary mt-4">
+            <FlaskConical className="size-4" /> Kerjakan “{labChallenge.title}” di Coding Lab
+            {state.challenges[labChallenge.id]?.passedAt && <CheckCircle2 className="size-4" />}
+          </Link>
+        ) : (
+          <p className="muted mt-3 text-xs">Kerjakan di VS Code di komputermu, atau bereksperimen di Playground Coding Lab.</p>
+        )}
       </section>
 
       <Hints lesson={lesson} attempts={state.lessons[lesson.id]?.attempts ?? 0} />
@@ -261,7 +275,7 @@ export default function LessonPage() {
         </div>
       </Section>
 
-      <Quiz lesson={lesson} />
+      <Quiz lesson={lesson} codeLang={module.id === 'js' || module.id === 'dom' ? 'js' : 'css'} />
 
       {lesson.gitCheckpoint && (
         <Section icon={GitCommitHorizontal} title="GitHub checkpoint" tone="emerald">

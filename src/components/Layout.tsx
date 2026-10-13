@@ -3,6 +3,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Code2,
+  FlaskConical,
   FolderKanban,
   LayoutDashboard,
   Map,
@@ -23,6 +24,7 @@ import { cx } from './ui'
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/learn', label: 'Learning Path', icon: BookOpen },
+  { to: '/lab', label: 'Coding Lab', icon: FlaskConical },
   { to: '/projects', label: 'Projects', icon: FolderKanban },
   { to: '/skills', label: 'Skill Tracker', icon: Sparkles },
   { to: '/roadmap', label: 'Roadmap', icon: Map },
@@ -79,6 +81,8 @@ export function Layout() {
   const { theme, sidebarCollapsed: collapsed, mode } = state.settings
   const [drawer, setDrawer] = useState(false)
   const location = useLocation()
+  // Halaman editor Coding Lab memakai lebar & tinggi penuh layar.
+  const inWorkspace = /^\/lab\/(c|play)\//.test(location.pathname)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -178,7 +182,13 @@ export function Layout() {
           </div>
         )}
 
-        <main id="main" className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main
+          id="main"
+          className={cx(
+            'mx-auto w-full',
+            inWorkspace ? 'px-3 py-3 sm:px-4 lg:flex lg:h-[calc(100dvh-4rem)] lg:flex-col' : 'max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8',
+          )}
+        >
           <Outlet />
         </main>
       </div>

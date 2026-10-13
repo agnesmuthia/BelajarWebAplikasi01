@@ -1,3 +1,4 @@
+import { domLessons, jsLessons } from './curriculumJs'
 import type { SkillId } from './skills'
 
 export interface QuizOption {
@@ -15,7 +16,7 @@ export interface QuizQuestion {
 }
 
 export interface CodeExample {
-  language: 'html' | 'css' | 'bash'
+  language: 'html' | 'css' | 'bash' | 'js'
   code: string
   caption: string
   /** Jika ada, contoh dirender di iframe terisolasi agar hasilnya terlihat. */
@@ -37,6 +38,8 @@ export interface Lesson {
   quiz: QuizQuestion[]
   skills: SkillId[]
   gitCheckpoint?: string
+  /** Tantangan Coding Lab yang terkait. */
+  lab?: string
 }
 
 export interface Module {
@@ -204,6 +207,7 @@ const htmlLessons: Lesson[] = [
       },
     ],
     skills: ['html', 'accessibility'],
+    lab: 'html-profile-card',
   },
   {
     id: 'html-3',
@@ -452,6 +456,7 @@ h1 {
       },
     ],
     skills: ['css'],
+    lab: 'debug-css-not-applied',
   },
   {
     id: 'css-2',
@@ -517,6 +522,7 @@ h1 {
       },
     ],
     skills: ['css'],
+    lab: 'css-button',
   },
   {
     id: 'css-3',
@@ -594,6 +600,7 @@ h1 {
       },
     ],
     skills: ['layout', 'responsive'],
+    lab: 'flex-nav',
   },
 ]
 
@@ -761,8 +768,8 @@ const upcoming = (id: string, title: string, description: string, phase: number,
 export const MODULES: Module[] = [
   { id: 'html', title: 'HTML Fundamentals', description: 'Struktur halaman, teks, gambar, link, tag semantik, dan form.', phase: 1, skills: ['html', 'semantic-html', 'accessibility'], lessons: htmlLessons },
   { id: 'css', title: 'CSS and Responsive Design', description: 'Selektor, box model, Flexbox, dan media query.', phase: 1, skills: ['css', 'layout', 'responsive'], lessons: cssLessons },
-  upcoming('js', 'JavaScript Fundamentals', 'Variabel, tipe data, fungsi, kondisi, perulangan, array, dan objek.', 2, ['javascript']),
-  upcoming('dom', 'DOM Manipulation', 'Memilih elemen, event listener, dan mengubah halaman secara dinamis.', 2, ['dom']),
+  { id: 'js', title: 'JavaScript Fundamentals', description: 'Variabel, tipe data, fungsi, kondisi, array, dan perulangan.', phase: 2, skills: ['javascript'], lessons: jsLessons },
+  { id: 'dom', title: 'DOM Manipulation', description: 'Memilih elemen, event listener, dan mengubah halaman secara dinamis.', phase: 2, skills: ['dom'], lessons: domLessons },
   { id: 'git', title: 'Git and GitHub', description: 'Mencatat versi kode dan menyimpannya di GitHub.', phase: 1, skills: ['git', 'github'], lessons: gitLessons },
   upcoming('react', 'React and Vite', 'Komponen, props, state, dan tooling modern.', 3, ['javascript']),
   upcoming('api', 'API Integration', 'fetch, JSON, async/await, dan menangani error jaringan.', 5, ['javascript']),

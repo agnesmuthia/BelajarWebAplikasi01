@@ -77,3 +77,19 @@
 .tok-keyword { @apply text-cyan-700 dark:text-cyan-300; }
 .tok-fn { @apply text-sky-700 dark:text-sky-300; }
 .tok-meta { @apply text-rose-600 dark:text-rose-300; }
+
+/* CodeMirror (Coding Lab) */
+.lab-editor .cm-editor { height: 100%; }
+.lab-editor .cm-gutters { background: transparent; border-right: 1px solid rgb(226 232 240); color: rgb(148 163 184); }
+.dark .lab-editor .cm-gutters { border-right-color: rgb(255 255 255 / 0.06); color: rgb(71 85 105); }
+.lab-editor .cm-activeLine { background: rgb(99 102 241 / 0.06); }
+.lab-editor .cm-activeLineGutter { background: rgb(99 102 241 / 0.08); color: rgb(79 70 229); }
+.dark .lab-editor .cm-activeLineGutter { color: rgb(165 180 252); }
+.dark .lab-editor .cm-content { caret-color: #e2e8f0; }
+.dark .lab-editor .cm-cursor { border-left-color: #e2e8f0; }
+.lab-editor .cm-selectionBackground, .lab-editor .cm-focused .cm-selectionBackground { background: rgb(99 102 241 / 0.25) !important; }
+.lab-editor .cm-matchingBracket { background: rgb(34 211 238 / 0.2); outline: 1px solid rgb(34 211 238 / 0.5); }
+.dark .lab-editor .cm-tooltip, .dark .lab-editor .cm-panels { background: #161a23; color: #e2e8f0; border-color: rgb(255 255 255 / 0.1); }
+.lab-editor .cm-tooltip-autocomplete ul li[aria-selected] { background: #4f46e5; color: #fff; }
+.dark .lab-editor .cm-panels input, .dark .lab-editor .cm-panels button { background: #1c212c; color: #e2e8f0; border: 1px solid rgb(255 255 255 / 0.1); }
+.lab-editor .cm-foldPlaceholder { background: rgb(99 102 241 / 0.15); border: none; color: inherit; }

@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Circle,
   Flame,
+  FlaskConical,
   FolderKanban,
   FolderPlus,
   GitBranch,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { CHALLENGES } from '../data/challenges'
 import { MODULES } from '../data/curriculum'
 import { findTemplate } from '../data/projects'
 import { Badge, EmptyState, PhaseBadge, ProgressBar, ProgressRing, SectionTitle, StatCard } from '../components/ui'
@@ -22,6 +24,7 @@ import {
   computeSkills,
   isProjectComplete,
   moduleProgress,
+  nextChallenge,
   nextLesson,
   overallLessonProgress,
   streak,
@@ -30,7 +33,7 @@ import {
 } from '../lib/progress'
 import { useStore } from '../lib/store'
 
-const ACTIVITY_ICON = { lesson: BookOpen, task: CheckCircle2, test: CheckCircle2, project: FolderPlus }
+const ACTIVITY_ICON = { lesson: BookOpen, task: CheckCircle2, test: CheckCircle2, project: FolderPlus, challenge: FlaskConical }
 
 function NameForm() {
   const { updateSettings } = useStore()
@@ -99,6 +102,8 @@ export default function Dashboard() {
     .slice(0, 3)
 
   const recent = [...state.activity].reverse().slice(0, 6)
+  const nextLab = nextChallenge(state)
+  const labDone = CHALLENGES.filter((c) => state.challenges[c.id]?.passedAt).length
 
   return (
     <div className="space-y-6">
@@ -196,7 +201,7 @@ export default function Dashboard() {
           {/* Next tasks */}
           <section className="card p-5">
             <SectionTitle>Tugas berikutnya</SectionTitle>
-            {!next && nextTasks.length === 0 ? (
+            {!next && !nextLab && nextTasks.length === 0 ? (
               <p className="muted text-sm">Tidak ada tugas tertunda. Mulai proyek baru dari Project Library.</p>
             ) : (
               <ul className="space-y-2">
@@ -207,6 +212,17 @@ export default function Dashboard() {
                       <div className="min-w-0">
                         <div className="text-sm font-medium">{next.lesson.title}</div>
                         <div className="muted text-xs">Pelajaran · {next.lesson.minutes} menit</div>
+                      </div>
+                    </Link>
+                  </li>
+                )}
+                {nextLab && (
+                  <li>
+                    <Link to={`/lab/c/${nextLab.id}`} className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 hover:border-indigo-300 dark:border-white/[0.06] dark:hover:border-indigo-400/40">
+                      <FlaskConical className="mt-0.5 size-4 shrink-0 text-cyan-500" />
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium">{nextLab.title}</div>
+                        <div className="muted text-xs">Coding Lab · {nextLab.kind === 'debug' ? 'Debugging' : 'Latihan'} · {nextLab.minutes} menit</div>
                       </div>
                     </Link>
                   </li>
@@ -224,6 +240,13 @@ export default function Dashboard() {
                 ))}
               </ul>
             )}
+          </section>
+
+          {/* Coding Lab */}
+          <section className="card p-5">
+            <SectionTitle action={<Link to="/lab" className="text-xs font-medium text-indigo-600 hover:underline dark:text-cyan-300">Buka Lab</Link>}>Coding Lab</SectionTitle>
+            <div className="mb-1.5 flex justify-between text-sm"><span>{labDone} dari {CHALLENGES.length} tantangan</span><span className="muted">{Math.round((labDone / CHALLENGES.length) * 100)}%</span></div>
+            <ProgressBar value={(labDone / CHALLENGES.length) * 100} label="Progres Coding Lab" />
           </section>
 
           {/* GitHub */}

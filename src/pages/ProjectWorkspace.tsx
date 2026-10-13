@@ -307,7 +307,7 @@ export default function ProjectWorkspace() {
             {tab === 'tasks' && <TasksTab project={project} tpl={tpl} />}
             {tab === 'files' && (
               <>
-                <p className="muted mb-4 text-sm">Starter files (hanya-baca). Unduh ZIP lalu kerjakan di VS Code. Editor dalam aplikasi hadir di Coding Lab (Phase 2).</p>
+                <p className="muted mb-4 text-sm">Starter files (hanya-baca). Unduh ZIP lalu kerjakan di VS Code. Mengedit file proyek langsung di DevStudio hadir di Phase 3; untuk bereksperimen dengan potongan kode, gunakan Playground di Coding Lab.</p>
                 <FileExplorer files={tpl.files} title={project.name} />
               </>
             )}

@@ -2,7 +2,8 @@ import { Download, Lock, RotateCcw, Upload } from 'lucide-react'
 import { useRef, useState, type ChangeEvent } from 'react'
 import { Modal } from '../components/Modal'
 import { Badge, PageHeader, cx } from '../components/ui'
-import { MODE_INFO } from '../data/modes'
+import { CURRENT_PHASE, MODE_INFO } from '../data/modes'
+import { clearDrafts, loadDrafts, replaceDrafts, sanitizeDrafts } from '../lab/drafts'
 import { downloadBlob } from '../lib/download'
 import { sanitizeState } from '../lib/storage'
 import { useStore } from '../lib/store'
@@ -19,7 +20,8 @@ export default function Settings() {
   const { settings } = state
 
   const exportData = () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
+    // Backup = progres + draft Coding Lab.
+    const blob = new Blob([JSON.stringify({ ...state, labDrafts: loadDrafts() }, null, 2)], { type: 'application/json' })
     downloadBlob(blob, `devstudio-backup-${new Date().toISOString().slice(0, 10)}.json`)
     toast('Backup diunduh.')
   }
@@ -34,7 +36,9 @@ export default function Settings() {
       if (raw?.version !== 1) return toast('File ini bukan backup DevStudio yang valid.', 'error')
       const clean = sanitizeState(raw)
       replaceState(clean)
-      toast(`Backup dipulihkan: ${clean.projects.length} proyek, ${Object.keys(clean.lessons).length} pelajaran.`)
+      const drafts = sanitizeDrafts(raw.labDrafts)
+      replaceDrafts(drafts)
+      toast(`Backup dipulihkan: ${clean.projects.length} proyek, ${Object.keys(clean.lessons).length} pelajaran, ${Object.keys(drafts).length} draft kode.`)
     } catch {
       toast('Gagal membaca file. Pastikan file berformat JSON.', 'error')
     }
@@ -75,7 +79,7 @@ export default function Settings() {
         <fieldset className="grid gap-3 sm:grid-cols-2">
           <legend className="sr-only">Pilih mode belajar</legend>
           {(Object.entries(MODE_INFO) as [LearningMode, (typeof MODE_INFO)[LearningMode]][]).map(([id, m]) => {
-            const available = m.phase <= 1
+            const available = m.phase <= CURRENT_PHASE
             const selected = settings.mode === id
             return (
               <label
@@ -111,14 +115,14 @@ export default function Settings() {
           <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={importData} />
           <button className="btn-ghost text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10" onClick={() => setConfirmReset(true)}><RotateCcw className="size-4" /> Reset semua data</button>
         </div>
-        <p className="muted mt-3 text-xs">{state.projects.length} proyek · {Object.values(state.lessons).filter((l) => l.passedAt).length} checkpoint lulus · {state.activity.length} aktivitas tercatat</p>
+        <p className="muted mt-3 text-xs">{state.projects.length} proyek · {Object.values(state.lessons).filter((l) => l.passedAt).length} checkpoint lulus · {Object.values(state.challenges).filter((c) => c.passedAt).length} tantangan Lab · {state.activity.length} aktivitas tercatat</p>
       </section>
 
       <Modal open={confirmReset} onClose={() => setConfirmReset(false)} title="Reset semua data?">
-        <p className="muted text-sm">Semua progres, proyek, catatan, dan pengaturan di browser ini akan dihapus. Unduh backup dulu jika ingin menyimpannya.</p>
+        <p className="muted text-sm">Semua progres, proyek, catatan, draft Coding Lab, dan pengaturan di browser ini akan dihapus. Unduh backup dulu jika ingin menyimpannya.</p>
         <div className="mt-5 flex justify-end gap-2">
           <button className="btn-secondary" onClick={() => setConfirmReset(false)}>Batal</button>
-          <button className="btn bg-rose-600 text-white hover:bg-rose-500" onClick={() => { resetAll(); setConfirmReset(false); toast('Semua data direset.', 'info') }}>Reset</button>
+          <button className="btn bg-rose-600 text-white hover:bg-rose-500" onClick={() => { resetAll(); clearDrafts(); setConfirmReset(false); toast('Semua data direset.', 'info') }}>Reset</button>
         </div>
       </Modal>
     </div>
