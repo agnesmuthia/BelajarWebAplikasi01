@@ -4,6 +4,8 @@ import {
   ChevronsRight,
   Code2,
   FlaskConical,
+  GitBranch,
+  Plug,
   FolderKanban,
   LayoutDashboard,
   Map,
@@ -26,6 +28,8 @@ const NAV = [
   { to: '/learn', label: 'Learning Path', icon: BookOpen },
   { to: '/lab', label: 'Coding Lab', icon: FlaskConical },
   { to: '/projects', label: 'Projects', icon: FolderKanban },
+  { to: '/github', label: 'GitHub Center', icon: GitBranch },
+  { to: '/integrations', label: 'Integrations', icon: Plug },
   { to: '/skills', label: 'Skill Tracker', icon: Sparkles },
   { to: '/roadmap', label: 'Roadmap', icon: Map },
   { to: '/settings', label: 'Pengaturan', icon: Settings },
@@ -82,7 +86,7 @@ export function Layout() {
   const [drawer, setDrawer] = useState(false)
   const location = useLocation()
   // Halaman editor Coding Lab memakai lebar & tinggi penuh layar.
-  const inWorkspace = /^\/lab\/(c|play)\/|^\/projects\/[^/]+\/code$/.test(location.pathname)
+  const inWorkspace = /^\/lab\/(c|play)\/|^\/projects\/[^/]+\/code$|^\/github\/m\//.test(location.pathname)
 
   useEffect(() => {
     window.scrollTo(0, 0)

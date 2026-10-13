@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { findChallenge } from '../data/challenges'
 import { findLesson } from '../data/curriculum'
+import { findMission } from '../data/gitMissions'
 import { findTemplate } from '../data/projects'
 import { createInitialState, loadState, sanitizeState, saveState, STORAGE_KEY } from './storage'
 import type { Activity, AppState, Settings, UserProject } from './types'
@@ -11,6 +12,7 @@ interface Store {
   persistOk: boolean
   updateSettings: (patch: Partial<Settings>) => void
   recordQuizAttempt: (lessonId: string, passed: boolean) => void
+  completeMission: (id: string) => void
   recordChallenge: (id: string, change: { run?: boolean; passed?: boolean; hint?: boolean; solution?: boolean }) => void
   createProject: (templateId: string, name: string) => string
   updateProject: (id: string, patch: Partial<Pick<UserProject, 'name' | 'notes' | 'repoUrl' | 'deployUrl' | 'status' | 'favorite'>>, event?: string) => void
@@ -104,6 +106,14 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
     })
   }, [])
 
+  const completeMission = useCallback((id: string) => {
+    setState((s) =>
+      s.missions[id]
+        ? s
+        : withActivity({ ...s, missions: { ...s.missions, [id]: { completedAt: nowIso() } } }, { kind: 'mission', label: `Misi Git selesai: ${findMission(id)?.title ?? id}` }),
+    )
+  }, [])
+
   const createProject = useCallback((templateId: string, name: string) => {
     const id = newId()
     const t = nowIso()
@@ -178,8 +188,8 @@ export function StoreProvider({ children, initial }: { children: ReactNode; init
   const resetAll = useCallback(() => setState(createInitialState()), [])
 
   const value = useMemo(
-    () => ({ state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll }),
-    [state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll],
+    () => ({ state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, completeMission, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll }),
+    [state, persistOk, updateSettings, recordQuizAttempt, recordChallenge, completeMission, createProject, updateProject, toggleProjectItem, deleteProject, replaceState, resetAll],
   )
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

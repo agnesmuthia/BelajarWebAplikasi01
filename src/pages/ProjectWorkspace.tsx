@@ -19,7 +19,10 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Modal } from '../components/Modal'
 import { STATUS_LABEL, STATUS_TONE } from '../components/ProjectCards'
-import { Badge, PhaseBadge, ProgressBar, ProgressRing, SectionTitle, cx } from '../components/ui'
+import { CodeBlock } from '../components/CodeBlock'
+import { Badge, ProgressBar, ProgressRing, SectionTitle, cx } from '../components/ui'
+import { parseRepoUrl } from '../github/api'
+import { RepoDetail } from '../github/RepoDetail'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
 import { skillById } from '../data/skills'
 import { relativeTime } from '../lib/date'
@@ -153,7 +156,7 @@ function PublishTab({ project }: { project: UserProject }) {
     toast('Link disimpan.')
   }
 
-  const repoHref = project.repoUrl && isGitHubRepoUrl(project.repoUrl) ? project.repoUrl : null
+  const repoParts = project.repoUrl && isGitHubRepoUrl(project.repoUrl) ? parseRepoUrl(project.repoUrl) : null
   const deployHref = project.deployUrl ? safeHttpUrl(project.deployUrl) : null
 
   return (
@@ -179,11 +182,14 @@ function PublishTab({ project }: { project: UserProject }) {
       <div className="space-y-4">
         <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 text-sm font-semibold"><GitBranch className="size-4" /> Git status</h3>
-            <PhaseBadge phase={4} />
+            <h3 className="flex items-center gap-2 text-sm font-semibold"><GitBranch className="size-4" /> Repository GitHub</h3>
+            {repoParts && <Badge tone="emerald">Data publik</Badge>}
           </div>
-          <p className="muted text-sm">Status branch, commit terbaru, dan sinkronisasi akan tampil setelah integrasi GitHub (OAuth) aktif. Saat ini DevStudio tidak membaca repository-mu.</p>
-          {repoHref && <a href={repoHref} target="_blank" rel="noopener noreferrer" className="btn-secondary mt-3"><ExternalLink className="size-4" /> Buka repository</a>}
+          {repoParts ? (
+            <RepoDetail owner={repoParts.owner} name={repoParts.repo} compact />
+          ) : (
+            <p className="muted text-sm">Belum terhubung. Tempel URL repository di kiri, atau pilih dari daftar repository di halaman <Link to="/integrations" className="underline">Integrations</Link>. DevStudio hanya membaca data publik; repository privat tidak bisa ditampilkan tanpa login.</p>
+          )}
         </div>
         <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
           <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold"><Rocket className="size-4" /> Deployment</h3>
@@ -192,6 +198,15 @@ function PublishTab({ project }: { project: UserProject }) {
           ) : (
             <p className="muted text-sm">Belum ada URL. Langkah menerbitkan ke GitHub Pages ada di README DevStudio; tutorial lengkap di Deployment Academy (Phase 6).</p>
           )}
+        </div>
+        <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+          <h3 className="mb-2 text-sm font-semibold">Perintah untuk push proyek ini</h3>
+          <p className="muted mb-2 text-xs">Jalankan di folder hasil ekstrak ZIP proyek ini, di komputermu{repoParts ? '' : ' (ganti USERNAME/NAMA-REPO)'}. Repository di GitHub harus sudah dibuat dan masih kosong.</p>
+          <CodeBlock
+            lang="bash"
+            code={`git init\ngit add .\ngit commit -m "Initial commit: ${project.name.replace(/["`$\\]/g, '')}"\ngit branch -M main\ngit remote add origin ${repoParts ? `https://github.com/${repoParts.owner}/${repoParts.repo}.git` : 'https://github.com/USERNAME/NAMA-REPO.git'}\ngit push -u origin main`}
+          />
+          <p className="muted mt-2 text-xs">DevStudio tidak menjalankan perintah ini untukmu — periksa output di terminalmu sendiri. Push berikutnya cukup: git add . → git commit -m "…" → git push.</p>
         </div>
       </div>
     </div>

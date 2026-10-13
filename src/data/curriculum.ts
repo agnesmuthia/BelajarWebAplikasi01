@@ -1,3 +1,4 @@
+import { githubLessons } from './curriculumGithub'
 import { domLessons, jsLessons } from './curriculumJs'
 import type { SkillId } from './skills'
 
@@ -16,7 +17,7 @@ export interface QuizQuestion {
 }
 
 export interface CodeExample {
-  language: 'html' | 'css' | 'bash' | 'js'
+  language: 'html' | 'css' | 'bash' | 'js' | 'yaml' | 'md' | 'text'
   code: string
   caption: string
   /** Jika ada, contoh dirender di iframe terisolasi agar hasilnya terlihat. */
@@ -770,7 +771,7 @@ export const MODULES: Module[] = [
   { id: 'css', title: 'CSS and Responsive Design', description: 'Selektor, box model, Flexbox, dan media query.', phase: 1, skills: ['css', 'layout', 'responsive'], lessons: cssLessons },
   { id: 'js', title: 'JavaScript Fundamentals', description: 'Variabel, tipe data, fungsi, kondisi, array, dan perulangan.', phase: 2, skills: ['javascript'], lessons: jsLessons },
   { id: 'dom', title: 'DOM Manipulation', description: 'Memilih elemen, event listener, dan mengubah halaman secara dinamis.', phase: 2, skills: ['dom'], lessons: domLessons },
-  { id: 'git', title: 'Git and GitHub', description: 'Mencatat versi kode dan menyimpannya di GitHub.', phase: 1, skills: ['git', 'github'], lessons: gitLessons },
+  { id: 'git', title: 'Git and GitHub', description: 'Dari commit pertama sampai Pull Request, GitHub Actions, dan keamanan secrets.', phase: 1, skills: ['git', 'github'], lessons: [...gitLessons, ...githubLessons] },
   upcoming('react', 'React and Vite', 'Komponen, props, state, dan tooling modern.', 3, ['javascript']),
   upcoming('api', 'API Integration', 'fetch, JSON, async/await, dan menangani error jaringan.', 5, ['javascript']),
   upcoming('backend', 'Backend Fundamentals', 'Server, HTTP, routing, dan validasi data di server.', 7, []),

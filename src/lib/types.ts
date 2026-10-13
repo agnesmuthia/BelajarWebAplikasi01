@@ -15,6 +15,8 @@ export interface Settings {
   sidebarCollapsed: boolean
   /** Coding Lab: jalankan ulang preview otomatis saat kode berubah. */
   labAutoRun: boolean
+  /** Username GitHub publik (opsional) untuk halaman Integrations. */
+  githubUsername: string
 }
 
 export interface LessonProgress {
@@ -55,7 +57,7 @@ export interface UserProject {
   history: ProjectEvent[]
 }
 
-export type ActivityKind = 'lesson' | 'task' | 'test' | 'project' | 'challenge'
+export type ActivityKind = 'lesson' | 'task' | 'test' | 'project' | 'challenge' | 'mission'
 
 export interface Activity {
   at: string
@@ -68,6 +70,8 @@ export interface AppState {
   settings: Settings
   lessons: Record<string, LessonProgress>
   challenges: Record<string, ChallengeProgress>
+  /** Misi simulator Git yang selesai. */
+  missions: Record<string, { completedAt: string }>
   projects: UserProject[]
   activity: Activity[]
 }

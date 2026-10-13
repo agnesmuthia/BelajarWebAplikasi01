@@ -228,7 +228,7 @@ export default function LessonPage() {
         <p className="muted text-sm">{lesson.example.caption}</p>
         <div className={cx('grid gap-4', lesson.example.previewHtml && 'lg:grid-cols-2')}>
           <div className="space-y-2">
-            <CodeBlock code={lesson.example.code} lang={lesson.example.language} maxHeight={420} />
+            <CodeBlock code={lesson.example.code} lang={lesson.example.language === 'yaml' ? 'text' : lesson.example.language} maxHeight={420} />
             {(lesson.example.language === 'js' || lesson.example.language === 'html') && (
               <Link to={`/lab/play/lesson-${lesson.id}`} className="btn-secondary"><FlaskConical className="size-4" /> Coba di Lab</Link>
             )}

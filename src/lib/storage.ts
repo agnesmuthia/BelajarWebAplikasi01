@@ -16,10 +16,11 @@ export const defaultSettings: Settings = {
   dailyGoal: 3,
   sidebarCollapsed: false,
   labAutoRun: true,
+  githubUsername: '',
 }
 
 export function createInitialState(): AppState {
-  return { version: 1, settings: { ...defaultSettings }, lessons: {}, challenges: {}, projects: [], activity: [] }
+  return { version: 1, settings: { ...defaultSettings }, lessons: {}, challenges: {}, missions: {}, projects: [], activity: [] }
 }
 
 const MODES: LearningMode[] = ['guided', 'practice', 'build', 'debug', 'github', 'deploy']
@@ -49,6 +50,7 @@ export function sanitizeState(raw: unknown): AppState {
         : defaultSettings.dailyGoal,
     sidebarCollapsed: s.sidebarCollapsed === true,
     labAutoRun: s.labAutoRun !== false,
+    githubUsername: isGitHubUsername(str(s.githubUsername, '', 39)) ? str(s.githubUsername, '', 39) : '',
   }
 
   const lessons: AppState['lessons'] = {}
@@ -74,6 +76,11 @@ export function sanitizeState(raw: unknown): AppState {
         ...(isIso(v.passedAt) ? { passedAt: v.passedAt } : {}),
       }
     }
+  }
+
+  const missions: AppState['missions'] = {}
+  if (isObj(raw.missions)) {
+    for (const [id, v] of Object.entries(raw.missions).slice(0, 100)) if (isObj(v) && isIso(v.completedAt)) missions[id.slice(0, 64)] = { completedAt: v.completedAt }
   }
 
   const projects: UserProject[] = Array.isArray(raw.projects)
@@ -111,12 +118,12 @@ export function sanitizeState(raw: unknown): AppState {
   const activity: AppState['activity'] = Array.isArray(raw.activity)
     ? raw.activity
         .filter(isObj)
-        .filter((a) => isIso(a.at) && ['lesson', 'task', 'test', 'project', 'challenge'].includes(a.kind as string))
+        .filter((a) => isIso(a.at) && ['lesson', 'task', 'test', 'project', 'challenge', 'mission'].includes(a.kind as string))
         .slice(-MAX_ACTIVITY)
         .map((a) => ({ at: a.at as string, kind: a.kind as AppState['activity'][number]['kind'], label: str(a.label, '', 160) }))
     : []
 
-  return { version: 1, settings, lessons, challenges, projects, activity }
+  return { version: 1, settings, lessons, challenges, missions, projects, activity }
 }
 
 export function loadState(storage: Storage | undefined = globalThis.localStorage): AppState {
@@ -153,4 +160,9 @@ export function isGitHubRepoUrl(value: string): boolean {
   if (!url) return false
   const u = new URL(url)
   return u.protocol === 'https:' && u.hostname === 'github.com' && /^\/[\w.-]+\/[\w.-]+\/?$/.test(u.pathname)
+}
+
+/** Username GitHub: huruf/angka/tanda hubung, maks. 39 karakter, tidak diawali/diakhiri '-'. */
+export function isGitHubUsername(v: string): boolean {
+  return /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(v)
 }

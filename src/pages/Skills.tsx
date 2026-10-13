@@ -50,7 +50,7 @@ export default function Skills() {
                 </div>
                 <div className="flex items-start gap-2">
                   <FlaskConical className="mt-0.5 size-4 shrink-0 text-slate-400" />
-                  <span className={challenges.length ? '' : 'muted'}>{challenges.length ? `Coding Lab: ${challenges.join(', ')}` : 'Belum ada tantangan Coding Lab'}</span>
+                  <span className={challenges.length ? '' : 'muted'}>{challenges.length ? `Praktik: ${challenges.join(', ')}` : 'Belum ada tantangan Coding Lab atau misi Git'}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <FolderKanban className="mt-0.5 size-4 shrink-0 text-slate-400" />

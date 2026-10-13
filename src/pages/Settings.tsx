@@ -3,6 +3,7 @@ import { useRef, useState, type ChangeEvent } from 'react'
 import { Modal } from '../components/Modal'
 import { Badge, PageHeader, cx } from '../components/ui'
 import { CURRENT_PHASE, MODE_INFO } from '../data/modes'
+import { clearAllSessions } from '../git/simStorage'
 import { clearAllProjectData } from '../workspace/db'
 import { clearDrafts, loadDrafts, replaceDrafts, sanitizeDrafts } from '../lab/drafts'
 import { downloadBlob } from '../lib/download'
@@ -123,7 +124,7 @@ export default function Settings() {
         <p className="muted text-sm">Semua progres, proyek beserta file & checkpoint-nya, catatan, draft Coding Lab, dan pengaturan di browser ini akan dihapus. Unduh backup dulu jika ingin menyimpannya.</p>
         <div className="mt-5 flex justify-end gap-2">
           <button className="btn-secondary" onClick={() => setConfirmReset(false)}>Batal</button>
-          <button className="btn bg-rose-600 text-white hover:bg-rose-500" onClick={() => { resetAll(); clearDrafts(); void clearAllProjectData().catch(() => {}); setConfirmReset(false); toast('Semua data direset.', 'info') }}>Reset</button>
+          <button className="btn bg-rose-600 text-white hover:bg-rose-500" onClick={() => { resetAll(); clearDrafts(); clearAllSessions(); void clearAllProjectData().catch(() => {}); setConfirmReset(false); toast('Semua data direset.', 'info') }}>Reset</button>
         </div>
       </Modal>
     </div>

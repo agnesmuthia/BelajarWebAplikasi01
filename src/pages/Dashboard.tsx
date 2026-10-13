@@ -16,15 +16,17 @@ import {
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { CHALLENGES } from '../data/challenges'
+import { GitHubActivityCard } from '../github/GitHubActivityCard'
 import { MODULES } from '../data/curriculum'
 import { findTemplate } from '../data/projects'
-import { Badge, EmptyState, PhaseBadge, ProgressBar, ProgressRing, SectionTitle, StatCard } from '../components/ui'
+import { Badge, EmptyState, ProgressBar, ProgressRing, SectionTitle, StatCard } from '../components/ui'
 import { greeting, relativeTime } from '../lib/date'
 import {
   computeSkills,
   isProjectComplete,
   moduleProgress,
   nextChallenge,
+  nextMission,
   nextLesson,
   overallLessonProgress,
   streak,
@@ -33,7 +35,7 @@ import {
 } from '../lib/progress'
 import { useStore } from '../lib/store'
 
-const ACTIVITY_ICON = { lesson: BookOpen, task: CheckCircle2, test: CheckCircle2, project: FolderPlus, challenge: FlaskConical }
+const ACTIVITY_ICON = { lesson: BookOpen, task: CheckCircle2, test: CheckCircle2, project: FolderPlus, challenge: FlaskConical, mission: GitBranch }
 
 function NameForm() {
   const { updateSettings } = useStore()
@@ -103,6 +105,7 @@ export default function Dashboard() {
 
   const recent = [...state.activity].reverse().slice(0, 6)
   const nextLab = nextChallenge(state)
+  const nextGit = nextMission(state)
   const labDone = CHALLENGES.filter((c) => state.challenges[c.id]?.passedAt).length
 
   return (
@@ -129,7 +132,11 @@ export default function Dashboard() {
               </>
             )}
             <div className="mt-5 flex flex-wrap gap-2">
-              {next ? (
+              {state.settings.mode === 'github' && nextGit ? (
+                <Link to={`/github/m/${nextGit.id}`} className="btn-primary">
+                  Lanjut misi Git: {nextGit.title} <ArrowRight className="size-4" />
+                </Link>
+              ) : next ? (
                 <Link to={`/learn/${next.module.id}/${next.lesson.id}`} className="btn-primary">
                   Continue Learning <ArrowRight className="size-4" />
                 </Link>
@@ -250,16 +257,7 @@ export default function Dashboard() {
           </section>
 
           {/* GitHub */}
-          <section className="card p-5">
-            <SectionTitle action={<PhaseBadge phase={4} />}>Aktivitas GitHub</SectionTitle>
-            <div className="flex items-start gap-3">
-              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 dark:bg-white/5"><GitBranch className="size-5 text-slate-500" /></div>
-              <p className="muted text-sm">
-                Integrasi GitHub belum aktif, jadi tidak ada data yang ditampilkan. Sementara itu, kamu bisa menyimpan link repository di setiap proyek.{' '}
-                <Link to="/roadmap" className="font-medium text-indigo-600 hover:underline dark:text-cyan-300">Lihat roadmap</Link>
-              </p>
-            </div>
-          </section>
+          <GitHubActivityCard />
 
           {/* Recent */}
           <section className="card p-5">

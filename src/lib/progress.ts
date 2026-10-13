@@ -1,5 +1,6 @@
 import { CHALLENGES } from '../data/challenges'
 import { ALL_LESSONS, MODULES, type Module } from '../data/curriculum'
+import { MISSIONS } from '../data/gitMissions'
 import { findTemplate, type ProjectTemplate } from '../data/projects'
 import { SKILLS, type Skill, type SkillId } from '../data/skills'
 import { dayKey, lastNDays } from './date'
@@ -96,6 +97,9 @@ export function computeSkills(state: AppState): SkillEvidence[] {
     for (const sid of c.skills) byId.get(sid)?.challenges.push(c.title)
   }
 
+  // Misi simulator Git = bukti praktik untuk skill Git.
+  for (const m of MISSIONS) if (state.missions[m.id]) byId.get('git')?.challenges.push(`Misi: ${m.title}`)
+
   for (const e of byId.values()) {
     const practice = e.tasks.length + e.challenges.length
     if (e.lessons.length > 0 && e.tasks.length > 0 && practice >= 3) e.level = 'mastered'
@@ -144,4 +148,8 @@ export function streak(state: AppState, now = new Date()) {
 
 export function nextChallenge(state: AppState) {
   return CHALLENGES.find((c) => !state.challenges[c.id]?.passedAt) ?? null
+}
+
+export function nextMission(state: AppState) {
+  return MISSIONS.find((m) => !state.missions[m.id]) ?? null
 }

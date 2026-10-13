@@ -3,10 +3,25 @@
 Laboratorium pribadi untuk **belajar, mempraktikkan, membangun, dan menerbitkan** website.
 Metode: **Learn → Practice → Build → Test → Review → Commit → Deploy → Reflect.**
 
-> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, dan **Phase 3 — Project Workspace**. Fitur fase
+> Versi ini mencakup **Phase 1 — Foundation**, **Phase 2 — Coding Lab**, **Phase 3 — Project Workspace**, dan **Phase 4 — Git & GitHub**. Fitur fase
 > berikutnya ditandai dengan label “Phase N” di aplikasi; tidak ada tombol yang hanya *terlihat* berfungsi.
 
 ---
+
+## Phase 4 — Git & GitHub
+
+| Fitur | Keterangan |
+|---|---|
+| **Simulator Git** | Terminal di browser yang meniru Git: `init, status, add, restore, commit, log, diff, branch, switch/checkout, merge` (termasuk **konflik**), `remote, push, pull, fetch, clone`, plus `pwd, ls, cd, mkdir, touch, echo >, cat, rm`. Pesan error mirip Git asli + **penjelasan berbahasa Indonesia** untuk setiap perintah. Riwayat ↑/↓, Tab untuk melengkapi. |
+| **Panel inspeksi** | Diagram 4 area (working directory → staging → repository lokal → remote) yang berubah langsung, editor file, riwayat commit dengan label branch, dan isi “GitHub” simulasi. |
+| **8 misi Level 1–2** | Terminal, identitas & `git init`, commit pertama, siklus harian & `.gitignore`, branch & merge, menyelesaikan konflik, remote/push/pull (dengan simulasi rekan tim & push yang ditolak), clone & kontribusi. Setiap langkah diperiksa otomatis dan diakhiri catatan “di komputer sungguhan”. |
+| **Level 3–4** | 6 pelajaran + kuis: Pull Request/review/fork, Issues/labels/milestones/Projects, branch protection/release/GitHub Actions CI, profil & README portofolio, hosting & deploy otomatis, secrets & Actions yang aman. |
+| **Integrations** | Data **publik** GitHub sungguhan tanpa login & tanpa token: profil, repository, branch, commit terbaru, status GitHub Actions; hubungkan repository ke proyek. Mode **DEMO** berlabel jelas. Aktivitas publik tampil di Dashboard. |
+| **Akses tulis** | *Belum aktif — dengan jujur.* Butuh GitHub App + server untuk menukar token secara aman; halaman Integrations berisi rencana izin minimum dan panduan aktivasi. Sementara itu, tab Repo & Deploy menampilkan perintah push yang sudah terisi alamat repository. |
+| **GitHub Mode** | *Continue Learning* membuka misi Git berikutnya dan petunjuk perintah langsung terlihat. |
+
+**Catatan:** simulator adalah model belajar, bukan Git sungguhan (tidak ada rebase, stash, atau
+reset). GitHub API tanpa login dibatasi ±60 permintaan/jam per IP; respons di-cache 5 menit.
 
 ## Phase 3 — Project Workspace
 
@@ -107,6 +122,8 @@ Tidak ada backend dan tidak ada secrets. Semua data tetap di browser pengguna.
 │   ├── data/                # curriculum*.ts, challenges.ts, projects.ts, skills.ts, modes.ts
 │   ├── lab/                 # CodeEditor, LabWorkspace, runtime, loopProtect, glossary, errorHints
 │   ├── workspace/           # IndexedDB, impor, pohon file, checkpoint & diff, audit
+│   ├── git/                 # Simulator Git, terminal, panel inspeksi
+│   ├── github/              # Klien GitHub REST (baca publik), data DEMO, detail repo
 │   ├── lib/                 # store, storage, progress, preview, highlight, download
 │   └── test/                # Unit & component test (Vitest + Testing Library)
 ├── vite.config.ts
@@ -181,7 +198,7 @@ diperbarui otomatis. Hentikan server dengan **Ctrl + C**.
 Otomatis:
 
 ```bash
-npm test          # 42 test: kurikulum, data, progres, preview, kuis, Coding Lab, Project Workspace
+npm test          # 65 test: …, simulator Git & 8 misi, klien GitHub API, halaman GitHub
 npm run build     # memastikan TypeScript & build produksi lolos
 ```
 
@@ -220,6 +237,14 @@ Manual Project Workspace:
 4. Tab **Pemeriksaan** → perbaiki temuan (mis. tambahkan `alt`).
 5. Tab **Checkpoint** → simpan “Impor proyek awal”, ubah sesuatu, **Lihat perubahan**, lalu **Pulihkan**.
 6. Muat ulang browser → file dan perubahan tetap ada. Unduh **ZIP** dan buka di VS Code.
+
+Manual Git & GitHub:
+
+1. **GitHub Center → Commit Pertama**: ikuti langkah; perhatikan diagram 4 area berubah setelah `git add` dan `git commit`.
+2. **Menyelesaikan Konflik**: `git merge tema-biru` → buka tab File → hapus penanda → `git add` → `git commit`.
+3. **Remote, Push & Pull**: tekan tombol simulasi rekan tim, lalu lihat `git push` ditolak dan selesaikan dengan `git pull`.
+4. **Integrations**: masukkan username GitHub-mu → buka sebuah repository → hubungkan ke proyek → buka proyek → tab Repo & Deploy.
+5. Coba **DEMO** tanpa username; pastikan label DEMO terlihat.
 
 ---
 
